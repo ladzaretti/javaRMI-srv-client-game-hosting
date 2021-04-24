@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="rmigameserver">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../rmiserver/src/rmigameserver.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

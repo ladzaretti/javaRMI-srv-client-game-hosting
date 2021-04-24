@@ -19,7 +19,11 @@ public class BlockingMatchMaking<T> {
         //wait until ticket is available
         while (empty) {
             try {
+                System.out.println("wait");
+
                 wait();
+                System.out.println("done waiting");
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -30,6 +34,7 @@ public class BlockingMatchMaking<T> {
         else
             empty = true;
         notifyAll();
+        System.out.println("take");
         return ticketsQueue.poll();
     }
 

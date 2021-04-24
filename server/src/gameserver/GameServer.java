@@ -1,7 +1,9 @@
 package gameserver;
 
 import rmigameserver.RMIGameServer;
+import rmigameclient.RMIGameClient;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -10,6 +12,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 public class GameServer implements RMIGameServer {
+
+
     BlockingMatchMaking<String> queue;
     int currentTicket;
 
@@ -26,7 +30,10 @@ public class GameServer implements RMIGameServer {
     }
 
     @Override
-    public synchronized String connect() {
+    public synchronized String connect(Remote client) throws RemoteException {
+        System.out.println("client connected");
+
+        ((RMIGameClient) client).update("asdf");
         String ticket = queue.take();
         System.out.println(ticket);
         return ticket + Thread.currentThread().toString();

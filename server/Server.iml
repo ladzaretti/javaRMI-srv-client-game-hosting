@@ -7,6 +7,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="rmiserver" />
+    <orderEntry type="library" name="rmigameserver" level="project" />
+    <orderEntry type="library" name="rmigameclient" level="project" />
   </component>
 </module>

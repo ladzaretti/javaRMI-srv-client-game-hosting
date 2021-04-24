@@ -5,29 +5,63 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
-import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
+import rmigameclient.RMIGameClient;
 import rmigameserver.RMIGameServer;
 
 public class MainController {
     @FXML
     private MenuItem connectMenuItem;
     @FXML
-    private MenuBar menuBar;
-    @FXML
     private String connectionInfo;
-    rmigameserver.RMIGameServer stub = null;
+    @FXML
+    private VBox vbox;
+
+    rmigameserver.RMIGameServer srvStub = null;
+    rmigameclient.RMIGameClient gameStub = null;
     Boolean connected = false;
+
+    public void initialize() {
+        vbox.sceneProperty().addListener((observableScene,
+                                          oldScene,
+                                          newScene) -> {
+            if (oldScene == null && newScene != null) {
+                // scene is set for the first time.
+                // listen to stage changes.
+                newScene.windowProperty().addListener((observableWindow,
+                                                       oldWindow,
+                                                       newWindow) -> {
+                    if (oldWindow == null && newWindow != null) {
+                        // stage is set. now is the right time to do
+                        // whatever we need to the stage in the controller.
+                        // set on close request for the main window
+                        newWindow.setOnCloseRequest(windowEvent -> {
+                            System.out.println("main window closed");
+                            try {
+                                if (connected)
+                                    srvStub.disconnect();
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    GameClient game = null;
 
     @FXML
     public void ConnectButtonClicked() {
-        System.out.println("connect");
         connectMenuItem.setDisable(true);
         AlertBox alert;
 
@@ -35,11 +69,10 @@ public class MainController {
         Registry reg;
         try {
             reg = LocateRegistry.getRegistry(null, 1777);
-            stub = (RMIGameServer) reg.lookup("GameServer");
+            srvStub = (RMIGameServer) reg.lookup("GameServer");
+            gameStub = (RMIGameClient) UnicastRemoteObject.exportObject(
+                    game = new GameClient(), 0);
             connected = true;
-        } catch (ConnectException e) {
-            System.out.println("connection error");
-            e.printStackTrace();
         } catch (RemoteException | NotBoundException e) {
             e.printStackTrace();
         }
@@ -56,7 +89,7 @@ public class MainController {
             try {
                 System.out.println("closed");
                 if (connected)
-                    stub.disconnect();
+                    srvStub.disconnect();
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -67,8 +100,14 @@ public class MainController {
         //so the UI stays responsive
         Task<String> connect = new Task<>() {
             @Override
-            protected String call() throws Exception {
-                return stub.connect();
+            protected String call() {
+                String srvAns = null;
+                try {
+                    srvAns = srvStub.connect(gameStub);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return srvAns;
             }
         };
         connect.setOnSucceeded(e -> {

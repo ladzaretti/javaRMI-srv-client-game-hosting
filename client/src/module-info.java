@@ -3,6 +3,6 @@ module client {
     requires javafx.controls;
     requires java.rmi;
     requires rmigameserver;
-
+    requires rmigameclient;
     opens GameClient;
 }
