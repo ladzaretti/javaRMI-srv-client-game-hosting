@@ -43,11 +43,11 @@
 
 <VBox fx:id="vbox" prefHeight="200.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GameClient.MainController">
   <children>
-    <MenuBar fx:id="menuBar" VBox.vgrow="NEVER">
+    <MenuBar VBox.vgrow="NEVER">
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
-            <MenuItem fx:id="connectMenuItem" mnemonicParsing="false" onAction="#ConnectButtonClicked" text="Connect" />
+            <MenuItem fx:id="connectMenuItem" mnemonicParsing="false" onAction="#connectButtonClicked" text="Connect" />
             <MenuItem mnemonicParsing="false" text="Open…" />
             <Menu mnemonicParsing="false" text="Open Recent" />
             <SeparatorMenuItem mnemonicParsing="false" />

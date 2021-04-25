@@ -2,58 +2,73 @@ package gameserver;
 
 import rmigameserver.RMIGameServer;
 import rmigameclient.RMIGameClient;
+import rmigamesession.RMIGameSession;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.ArrayList;
 
 
 public class GameServer implements RMIGameServer {
 
 
-    BlockingMatchMaking<String> queue;
-    int currentTicket;
+    BlockingMatchMaking<Remote> queue;
+    int port;
 
-    public GameServer(BlockingMatchMaking<String> queue) {
+    public GameServer(BlockingMatchMaking<Remote> queue, int port) {
         this.queue = queue;
+        this.port = port;
         new Thread(() -> {
+            ArrayList<Remote> players;
             while (true) {
-                currentTicket = ThreadLocalRandom.current().nextInt();
-                String idString = String.valueOf(currentTicket);
-                queue.fill(idString);
-                System.out.println("fill");
+                String gameSessionInfo;
+                players = queue.clear();
+                RMIGameClient p1 = (RMIGameClient) players.get(0);
+                RMIGameClient p2 = (RMIGameClient) players.get(1);
+                GameSession gameSession = new GameSession(p1, p2);
+
+                try {
+                    RMIGameSession gameSessionStub =
+                            (RMIGameSession) UnicastRemoteObject.exportObject(gameSession, port);
+                    Registry reg = LocateRegistry.getRegistry(port);
+                    reg.bind(gameSessionInfo =
+                            String.valueOf(gameSessionStub.hashCode()), gameSessionStub);
+                    gameSession.notifyPlayers("game Started at :" + gameSessionInfo);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }).start();
     }
 
     @Override
     public synchronized String connect(Remote client) throws RemoteException {
-        System.out.println("client connected");
 
-        ((RMIGameClient) client).update("asdf");
-        String ticket = queue.take();
-        System.out.println(ticket);
-        return ticket + Thread.currentThread().toString();
+        System.out.println("client connected [" + client + "]");
+        queue.put(client);
+        return Thread.currentThread().toString();
     }
 
     @Override
-    public synchronized void disconnect() throws RemoteException {
-        System.out.println("disconnected thread: " + Thread.currentThread().toString());
+    public synchronized void disconnect(Remote client) throws RemoteException {
+        queue.remove(client);
+        System.out.println("disconnected thread: " + Thread.currentThread());
     }
 
     public static void main(String[] args) {
         try {
             int port = Integer.parseInt(args[0]);
             //create remote object
-            BlockingMatchMaking<String> game = new BlockingMatchMaking<>(2);
-            GameServer srv = new GameServer(game);
+            BlockingMatchMaking<Remote> game = new BlockingMatchMaking<>(2);
+            GameServer srv = new GameServer(game, port);
 
             //export the remote object
             System.setProperty("java.rmi.server.hostname", "localhost");
-            RMIGameServer stub = (RMIGameServer) UnicastRemoteObject.exportObject(srv, port);
+            RMIGameServer stub =
+                    (RMIGameServer) UnicastRemoteObject.exportObject(srv, port);
 
             //bind remote server to the registry
             Registry reg = LocateRegistry.
@@ -62,7 +77,7 @@ public class GameServer implements RMIGameServer {
 
             System.err.println("server ready");
         } catch (Exception e) {
-            System.err.println("Server exception: " + e.toString());
+            System.err.println("Server exception: " + e);
             e.printStackTrace();
         }
     }

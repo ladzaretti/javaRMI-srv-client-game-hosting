@@ -1,9 +1,9 @@
 package GameClient;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
@@ -28,6 +28,7 @@ public class MainController {
     rmigameserver.RMIGameServer srvStub = null;
     rmigameclient.RMIGameClient gameStub = null;
     Boolean connected = false;
+    AlertBox alert;
 
     public void initialize() {
         vbox.sceneProperty().addListener((observableScene,
@@ -47,7 +48,8 @@ public class MainController {
                             System.out.println("main window closed");
                             try {
                                 if (connected)
-                                    srvStub.disconnect();
+                                    srvStub.disconnect(gameStub);
+                                System.exit(0);
                             } catch (RemoteException e) {
                                 e.printStackTrace();
                             }
@@ -61,9 +63,8 @@ public class MainController {
     GameClient game = null;
 
     @FXML
-    public void ConnectButtonClicked() {
+    public void connectButtonClicked() {
         connectMenuItem.setDisable(true);
-        AlertBox alert;
 
         //set connection to the remote server
         Registry reg;
@@ -71,8 +72,10 @@ public class MainController {
             reg = LocateRegistry.getRegistry(null, 1777);
             srvStub = (RMIGameServer) reg.lookup("GameServer");
             gameStub = (RMIGameClient) UnicastRemoteObject.exportObject(
-                    game = new GameClient(), 0);
+                    game = new GameClient(this), 0);
             connected = true;
+            Thread t = new Thread(game);
+            t.start();
         } catch (RemoteException | NotBoundException e) {
             e.printStackTrace();
         }
@@ -89,7 +92,7 @@ public class MainController {
             try {
                 System.out.println("closed");
                 if (connected)
-                    srvStub.disconnect();
+                    srvStub.disconnect(gameStub);
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -111,11 +114,16 @@ public class MainController {
             }
         };
         connect.setOnSucceeded(e -> {
-            alert.close();
             connectionInfo = connect.getValue();
             System.out.println(connectionInfo);
 
         });
         new Thread(connect).start();
+    }
+
+    public void closeWaitingBox() {
+        Platform.runLater(() ->
+                alert.close()
+        );
     }
 }

@@ -47,7 +47,7 @@
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
-            <MenuItem fx:id="connectMenuItem" mnemonicParsing="false" onAction="#ConnectButtonClicked" text="Connect" />
+            <MenuItem fx:id="connectMenuItem" mnemonicParsing="false" onAction="#connectButtonClicked" text="Connect" />
             <MenuItem mnemonicParsing="false" text="Open…" />
             <Menu mnemonicParsing="false" text="Open Recent" />
             <SeparatorMenuItem mnemonicParsing="false" />
