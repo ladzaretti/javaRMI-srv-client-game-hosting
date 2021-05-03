@@ -7,8 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -40,14 +39,18 @@ public class MainController {
     private MenuItem createUserMenuItem;
     @FXML
     private MenuItem signInMenuItem;
+    @FXML
+    private ToggleGroup gameType;
 
-    rmimainserver.RMIMainServer mainServerStub = null;
-    rmigameserver.RMIGameServer gameServerStub = null;
-    rmigameclient.RMIGameClient gameClientStub = null;
-    Boolean connectedToMain = false;
-    Boolean connectedToGame = false;
-    AlertBox alert;
-    Registry reg;
+    private rmimainserver.RMIMainServer mainServerStub = null;
+    private rmigameserver.RMIGameServer gameServerStub = null;
+    private rmigameclient.RMIGameClient gameClientStub = null;
+    private Boolean connectedToMain = false;
+    private Boolean connectedToGame = false;
+    private Boolean userLogged = false;
+    private AlertBox alert;
+    private Registry reg;
+
 
     public void initialize() {
         vbox.sceneProperty().addListener((observableScene,
@@ -114,11 +117,15 @@ public class MainController {
 
     @FXML
     public void startGameClicked() {
-        //set connection to the remote server
-        Registry reg;
+        RadioMenuItem gameSelectedButton = (RadioMenuItem) gameType.getSelectedToggle();
+        String gameSelected = gameSelectedButton.getText();
+        String gameServer;
         try {
-            reg = LocateRegistry.getRegistry(null, 1777);
-            gameServerStub = (RMIGameServer) reg.lookup("GameServer");
+            gameServer = gameSelected.replaceAll("\\s", "")
+                    + "Server";
+            System.out.println("server to connect to:" + gameServer + "\n" + reg);
+            gameServerStub = (RMIGameServer) reg.lookup(gameServer);
+
             // export the object of the game thread for the server usage
             gameClientStub = (RMIGameClient) UnicastRemoteObject.exportObject(
                     game = new GameClient(this), 0);
@@ -201,6 +208,7 @@ public class MainController {
     @FXML
     public void signinMenuPressed(ActionEvent event) throws Exception {
         try {
+            //load login screen
             FXMLLoader fxmlLoader;
             try {
                 fxmlLoader = new FXMLLoader(
@@ -221,5 +229,13 @@ public class MainController {
 
     public void print(String msg) {
         System.out.println("this is controller main :\n" + msg);
+    }
+
+    public void setUserLogged(boolean logged) {
+        userLogged = logged;
+        startGameMenu.setDisable(false);
+        signInMenuItem.setDisable(true);
+        createUserMenuItem.setDisable(true);
+        gameTypeMenu.setDisable(false);
     }
 }

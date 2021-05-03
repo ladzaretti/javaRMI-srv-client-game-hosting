@@ -62,13 +62,13 @@ public class MainServer implements RMIMainServer {
             RMIGameServer tttStub =
                     (RMIGameServer) UnicastRemoteObject.exportObject(tttSrv, port);
 
-            reg.bind("ticServer", tttStub);
+            reg.bind("TicTacToeServer", tttStub);
 
 
             //export checkers matchmaking server
             RMIGameServer cStub =
                     (RMIGameServer) UnicastRemoteObject.exportObject(cSrv, port);
-            reg.bind("chServer", cStub);
+            reg.bind("CheckersServer", cStub);
 
 
             //export main server
