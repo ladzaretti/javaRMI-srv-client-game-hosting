@@ -4,5 +4,8 @@ module client {
     requires java.rmi;
     requires rmigameserver;
     requires rmigameclient;
+    requires rmimainserver;
+
+
     opens GameClient;
 }

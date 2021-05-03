@@ -53,32 +53,13 @@ public class GameServer implements RMIGameServer {
     }
 
     @Override
+    public String[] getSupportedGames() throws RemoteException {
+        return SupportedGames.games();
+    }
+
+    @Override
     public synchronized void disconnect(Remote client) throws RemoteException {
         queue.remove(client);
         System.out.println("disconnected thread: " + Thread.currentThread());
-    }
-
-    public static void main(String[] args) {
-        try {
-            int port = Integer.parseInt(args[0]);
-            //create remote object
-            BlockingMatchMaking<Remote> game = new BlockingMatchMaking<>(2);
-            GameServer srv = new GameServer(game, port);
-
-            //export the remote object
-            System.setProperty("java.rmi.server.hostname", "localhost");
-            RMIGameServer stub =
-                    (RMIGameServer) UnicastRemoteObject.exportObject(srv, port);
-
-            //bind remote server to the registry
-            Registry reg = LocateRegistry.
-                    createRegistry(port);
-            reg.bind("GameServer", stub);
-
-            System.err.println("server ready");
-        } catch (Exception e) {
-            System.err.println("Server exception: " + e);
-            e.printStackTrace();
-        }
     }
 }

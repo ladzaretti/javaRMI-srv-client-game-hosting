@@ -11,7 +11,6 @@ public class AlertBox extends Alert {
         setContentText(msg);
         ButtonType buttonTypeOne = new ButtonType("OK");
         getButtonTypes().setAll(buttonTypeOne);
-        if (showButton)
-            getDialogPane().lookupButton(buttonTypeOne).setVisible(false);
+        getDialogPane().lookupButton(buttonTypeOne).setVisible(showButton);
     }
 }

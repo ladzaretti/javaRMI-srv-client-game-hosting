@@ -34,21 +34,14 @@ public class BlockingMatchMaking<T> {
 
     public synchronized boolean remove(T obj) {
         //wait until ticket is available
-        while (empty) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        //toggle status
+        boolean itemRemoved = queue.remove(obj);
         if (full)
             full = false;
         else
             empty = true;
-        boolean item = queue.remove(obj);
-        notifyAll();
-        return item;
+        if (itemRemoved)
+            notifyAll();
+        return itemRemoved;
     }
 
     public synchronized ArrayList<T> clear() {
