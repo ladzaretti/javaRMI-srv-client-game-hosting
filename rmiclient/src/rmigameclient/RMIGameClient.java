@@ -8,5 +8,7 @@ public interface RMIGameClient extends Remote {
 
     void update(int x, int y) throws RemoteException;
 
+    void setEndGame(int[] start, int[] end) throws RemoteException;
+
     void disconnect() throws RemoteException;
 }

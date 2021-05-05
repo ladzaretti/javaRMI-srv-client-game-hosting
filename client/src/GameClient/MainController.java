@@ -67,7 +67,6 @@ public class MainController {
                         // whatever we need to the stage in the controller.
                         // set on close request for the main window
                         newWindow.setOnCloseRequest(windowEvent -> {
-                            System.out.println("main window closed");
                             try {
                                 if (connectedToMain)
                                     mainServerStub.disconnect();
@@ -139,7 +138,6 @@ public class MainController {
             // deploy game handling thread
             Thread t = new Thread(game);
             t.start();
-            System.out.println("startedd thread");
         } catch (RemoteException e) {
             e.printStackTrace();
 
@@ -178,9 +176,7 @@ public class MainController {
                 String[] supprtedGames;
                 try {
                     srvAns = gameServerStub.connect(gameClientStub);
-                    System.out.println("supported games" +
-                            Arrays.toString(supprtedGames =
-                                    gameServerStub.getSupportedGames()));
+                    supprtedGames = gameServerStub.getSupportedGames();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -189,7 +185,6 @@ public class MainController {
         };
         connect.setOnSucceeded(e -> {
             connectionInfo = connect.getValue();
-            System.out.println(connectionInfo);
 
         });
         new Thread(connect).start();
@@ -239,14 +234,10 @@ public class MainController {
                     Stage stage = new Stage();
                     stage.setScene(new Scene(root));
                     stage.show();
-                    System.out.println("asdasdasdasdasdasdasd");
                 }
         );
     }
 
-    public void print(String msg) {
-        System.out.println("this is controller main :\n" + msg);
-    }
 
     public void setUserLogged(boolean logged) {
         userLogged = logged;

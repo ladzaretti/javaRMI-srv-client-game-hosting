@@ -3,6 +3,7 @@ package GameClient;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.layout.Pane;
@@ -16,16 +17,12 @@ import javafx.util.Duration;
 import rmigamesession.RMIGameSession;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class TicTacToe {
     private final static int RECTSIZE = 100;
     private final static int BOARDSIZE = 300;
-    private boolean playable = true;
     private final Tile[][] board = new Tile[3][3];
-    private final List<Combo> combos = new ArrayList<>();
     private final Pane root = new Pane();
     private final RMIGameSession srv;
     private final int playerID;
@@ -43,35 +40,27 @@ public class TicTacToe {
         board[y][x].text.setText(opSign);
     }
 
-    private void playWinAnimation(Combo combo) {
-        Line line = new Line();
-        line.setStartX(combo.tiles[0].getCenterX());
-        line.setStartY(combo.tiles[0].getCenterY());
-        line.setEndX(combo.tiles[0].getCenterX());
-        line.setEndY(combo.tiles[0].getCenterY());
+    public void playWinAnimation(int[] start, int[] end) {
+        Platform.runLater(() ->
+                {
+                    Line line = new Line();
+                    Tile startTile = board[start[0]][start[1]];
+                    Tile endTile = board[end[0]][end[1]];
+                    line.setStartX(startTile.getCenterX());
+                    line.setStartY(startTile.getCenterY());
+                    line.setEndX(startTile.getCenterX());
+                    line.setEndY(startTile.getCenterY());
 
-        root.getChildren().add(line);
-        Timeline timeline = new Timeline();
-        timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(1),
-                new KeyValue(line.endXProperty(), combo.tiles[2].getCenterX()),
-                new KeyValue(line.endYProperty(), combo.tiles[2].getCenterY()))
+                    root.getChildren().add(line);
+                    Timeline timeline = new Timeline();
+                    timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(1),
+                            new KeyValue(line.endXProperty(), endTile.getCenterX()),
+                            new KeyValue(line.endYProperty(), endTile.getCenterY()))
+                    );
+                    timeline.play();
+                }
         );
-        timeline.play();
-    }
 
-    class Combo {
-        Tile[] tiles;
-
-        public Combo(Tile... tiles) {
-            this.tiles = tiles;
-        }
-
-        public boolean isComplete() {
-            if (tiles[0].getValue().isEmpty())
-                return false;
-            return tiles[0].getValue().equals(tiles[1].getValue())
-                    && tiles[0].getValue().equals(tiles[2].getValue());
-        }
     }
 
     public Parent createContent() {
@@ -90,7 +79,7 @@ public class TicTacToe {
     }
 
 
-    class Tile extends StackPane {
+    private class Tile extends StackPane {
         private Text text = new Text();
         private int x;
         private int y;
@@ -117,15 +106,6 @@ public class TicTacToe {
             });
 
         }
-
-        private boolean isOccupied() {
-            return !this.getValue().equals("");
-        }
-
-        public String getValue() {
-            return text.getText();
-        }
-
 
         private void draw() {
             text.setText(sign);

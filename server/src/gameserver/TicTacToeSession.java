@@ -15,7 +15,7 @@ public class TicTacToeSession implements RMIGameSession {
     private int id2;
     private boolean turnP1 = true;
     private boolean playable = true;
-    private Tile[][] board;
+    private final Tile[][] board;
     private final List<Combo> combos = new ArrayList<>();
 
     public void setPlayer1(RMIGameClient player1) {
@@ -28,22 +28,22 @@ public class TicTacToeSession implements RMIGameSession {
 
     public TicTacToeSession() {
         board = new Tile[3][3];
-        for (int i = 0; i < 3; i++)
-            for (int j = 0; j < 3; j++) {
-                board[j][i] = new Tile();
+        for (int c = 0; c < 3; c++)
+            for (int r = 0; r < 3; r++) {
+                board[r][c] = new Tile(r, c);
             }
         //horizontal
-        for (int y = 0; y < 3; y++)
+        for (int c = 0; c < 3; c++)
             combos.add(new Combo(
-                    board[0][y],
-                    board[1][y],
-                    board[2][y]));
+                    board[0][c],
+                    board[1][c],
+                    board[2][c]));
         //vertical
-        for (int x = 0; x < 3; x++)
+        for (int r = 0; r < 3; r++)
             combos.add(new Combo(
-                    board[x][0],
-                    board[x][1],
-                    board[x][2]));
+                    board[r][0],
+                    board[r][1],
+                    board[r][2]));
         //diagonals
         combos.add(new Combo(
                 board[0][0],
@@ -65,24 +65,24 @@ public class TicTacToeSession implements RMIGameSession {
     }
 
     @Override
-    public synchronized boolean move(int x, int y, int id) throws RemoteException {
+    public synchronized boolean move(int c, int r, int id) throws RemoteException {
         boolean valid = false;
         // check if tile is occupied or game is playable
-        if (board[y][x].getValue() != 0
+        if (board[r][c].getValue() != 0
                 || !playable)
             return false;
         if (id == id1 && turnP1) {
             //p1 turn
             valid = true;
-            player2.update(x, y);
-            board[y][x].setValue(1);
+            player2.update(c, r);
+            board[r][c].setValue(1);
             turnP1 = false;
         }
         if (id == id2 && !turnP1) {
             //p2 turn
             valid = true;
-            player1.update(x, y);
-            board[y][x].setValue(2);
+            player1.update(c, r);
+            board[r][c].setValue(2);
             turnP1 = true;
         }
         checkState();
@@ -102,15 +102,24 @@ public class TicTacToeSession implements RMIGameSession {
         for (Combo combo : combos) {
             if (combo.isComplete()) {
                 playable = false;
-                System.out.println("someone won");
-                //todo play animation using the current combo
+                int[] start = combo.tiles[0].getPos();
+                int[] end = combo.tiles[2].getPos();
+                try {
+                    player1.setEndGame(start, end);
+                    player2.setEndGame(start, end);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+                // todo show game over alert
+                // todo keep score
+                // todo option to reset game
                 break;
             }
         }
 
     }
 
-    class Combo {
+    private class Combo {
         Tile[] tiles;
 
         public Combo(Tile... tiles) {
@@ -118,7 +127,6 @@ public class TicTacToeSession implements RMIGameSession {
         }
 
         public boolean isComplete() {
-            //System.out.println(tiles[0].getValue() + " " + tiles[1].getValue() + " " + tiles[2].getValue());
             if (tiles[0].getValue() == 0)
                 return false;
             return tiles[0].getValue() == (tiles[1].getValue())
@@ -126,8 +134,15 @@ public class TicTacToeSession implements RMIGameSession {
         }
     }
 
-    class Tile {
+    private class Tile {
         int value;
+        int r;
+        int c;
+
+        public Tile(int r, int c) {
+            this.r = r;
+            this.c = c;
+        }
 
         public void setValue(int value) {
             this.value = value;
@@ -135,6 +150,10 @@ public class TicTacToeSession implements RMIGameSession {
 
         public int getValue() {
             return value;
+        }
+
+        public int[] getPos() {
+            return new int[]{r, c};
         }
     }
 }

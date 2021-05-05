@@ -80,6 +80,11 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
     }
 
     @Override
+    public void setEndGame(int[] start, int[] end) throws RemoteException {
+        ticTacToe.playWinAnimation(start, end);
+    }
+
+    @Override
     public void disconnect() throws RemoteException {
 
     }
