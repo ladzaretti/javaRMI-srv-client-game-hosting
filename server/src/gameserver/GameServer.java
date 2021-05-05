@@ -28,7 +28,7 @@ public class GameServer implements RMIGameServer {
                 players = queue.clear();
                 RMIGameClient p1 = (RMIGameClient) players.get(0);
                 RMIGameClient p2 = (RMIGameClient) players.get(1);
-                GameSession gameSession = new GameSession(p1, p2);
+                TicTacToeSession gameSession = new TicTacToeSession(p1, p2);
 
                 try {
                     RMIGameSession gameSessionStub =
@@ -36,7 +36,7 @@ public class GameServer implements RMIGameServer {
                     Registry reg = LocateRegistry.getRegistry(port);
                     reg.bind(gameSessionInfo =
                             String.valueOf(gameSessionStub.hashCode()), gameSessionStub);
-                    gameSession.notifyPlayers("game Started at :" + gameSessionInfo);
+                    gameSession.sendConnectionInfo(gameSessionInfo);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -84,7 +84,7 @@ public class MainController {
         });
     }
 
-    GameClient game = null;
+    TicTacToeGameClient game = null;
 
 
     @FXML
@@ -93,14 +93,19 @@ public class MainController {
             // connect to the main server
             reg = LocateRegistry.getRegistry(null, 1777);
             mainServerStub = (RMIMainServer) reg.lookup("MainServer");
-            System.out.println(mainServerStub.connect());
+            mainServerStub.connect();
             connectedToMain = true;
+
+            // display connection successful dialog
             new AlertBox(Alert.AlertType.INFORMATION,
                     "Connection successful\nPlease Sign in/Create new user",
                     true).show();
+
+            // update UI menu
             connectMenuItem.setDisable(true);
             createUserMenuItem.setDisable(false);
             signInMenuItem.setDisable(false);
+
             // todo show high score when connected to main server!
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -117,21 +122,24 @@ public class MainController {
 
     @FXML
     public void startGameClicked() {
+        // retrieve selected game type
+        // and connect to the corresponding remote matchmaking server
         RadioMenuItem gameSelectedButton = (RadioMenuItem) gameType.getSelectedToggle();
         String gameSelected = gameSelectedButton.getText();
         String gameServer;
         try {
-            gameServer = gameSelected.replaceAll("\\s", "")
-                    + "Server";
-            System.out.println("server to connect to:" + gameServer + "\n" + reg);
+            gameServer = gameSelected.replaceAll("\\s", "") + "Server";
             gameServerStub = (RMIGameServer) reg.lookup(gameServer);
 
             // export the object of the game thread for the server usage
             gameClientStub = (RMIGameClient) UnicastRemoteObject.exportObject(
-                    game = new GameClient(this), 0);
-            connectedToMain = true;
+                    game = new TicTacToeGameClient(this), 0);
+            connectedToGame = true;
+
+            // deploy game handling thread
             Thread t = new Thread(game);
             t.start();
+            System.out.println("startedd thread");
         } catch (RemoteException e) {
             e.printStackTrace();
 
@@ -150,7 +158,6 @@ public class MainController {
         Window alertWin = alert.getDialogPane().getScene().getWindow();
         alertWin.setOnCloseRequest(windowEvent -> {
             try {
-                System.out.println("closed");
                 if (connectedToMain) {
                     connectMenuItem.setDisable(false);
                     connectedToMain = false;
@@ -171,7 +178,7 @@ public class MainController {
                 String[] supprtedGames;
                 try {
                     srvAns = gameServerStub.connect(gameClientStub);
-                    System.out.printf("supported games" +
+                    System.out.println("supported games" +
                             Arrays.toString(supprtedGames =
                                     gameServerStub.getSupportedGames()));
                 } catch (Exception e) {
@@ -206,7 +213,7 @@ public class MainController {
 
 
     @FXML
-    public void signinMenuPressed(ActionEvent event) throws Exception {
+    public void signinMenuPressed(ActionEvent event) {
         try {
             //load login screen
             FXMLLoader fxmlLoader;
@@ -225,6 +232,16 @@ public class MainController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void startGame(Parent root) {
+        Platform.runLater(() -> {
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                    System.out.println("asdasdasdasdasdasdasd");
+                }
+        );
     }
 
     public void print(String msg) {

@@ -5,7 +5,7 @@ module client {
     requires rmigameserver;
     requires rmigameclient;
     requires rmimainserver;
-
+    requires rmigamesession;
 
     opens GameClient;
 }
