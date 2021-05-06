@@ -28,6 +28,7 @@ public class TicTacToe {
     private final int playerID;
     private final String sign;
     private final String opSign;
+    private Line line;
 
     public TicTacToe(RMIGameSession srv, int id, String sign) {
         this.srv = srv;
@@ -43,7 +44,7 @@ public class TicTacToe {
     public void playWinAnimation(int[] start, int[] end) {
         Platform.runLater(() ->
                 {
-                    Line line = new Line();
+                    line = new Line();
                     Tile startTile = board[start[0]][start[1]];
                     Tile endTile = board[end[0]][end[1]];
                     line.setStartX(startTile.getCenterX());
@@ -75,9 +76,9 @@ public class TicTacToe {
 
                 board[j][i] = tile;
             }
+
         return root;
     }
-
 
     private class Tile extends StackPane {
         private Text text = new Text();
@@ -111,6 +112,11 @@ public class TicTacToe {
             text.setText(sign);
         }
 
+        private void clear() {
+            text.setText("");
+        }
+
+
         public double getCenterX() {
             return getTranslateX() + (double) RECTSIZE / 2;
         }
@@ -119,5 +125,13 @@ public class TicTacToe {
             return getTranslateY() + (double) RECTSIZE / 2;
         }
 
+    }
+
+    public void resetBoard() {
+        root.getChildren().remove(line);
+        for (int c = 0; c < 3; c++)
+            for (int r = 0; r < 3; r++) {
+                board[r][c].clear();
+            }
     }
 }

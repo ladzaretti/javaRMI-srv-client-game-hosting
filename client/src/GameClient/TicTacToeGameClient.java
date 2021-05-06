@@ -43,6 +43,7 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
                     lock.wait();
                 }
                 mainController.startGame((ticTacToe = new TicTacToe(gameSession, id, sign)).createContent());
+                //ticTacToe.setOnCloseRequest();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -80,12 +81,43 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
     }
 
     @Override
-    public void setEndGame(int[] start, int[] end) throws RemoteException {
+    public void playGameOverRoutine(int[] start, int[] end) throws RemoteException {
         ticTacToe.playWinAnimation(start, end);
     }
 
-    @Override
-    public void disconnect() throws RemoteException {
+    public void disconnect() {
+        try {
+            gameSession.sessionEnded(id);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
 
+    public void opponentDisconnected() throws RemoteException {
+        System.out.println("other player gone");
+        mainController.opponentDisconnectedAlert();
+    }
+
+    public void resetBoard() {
+        ticTacToe.resetBoard();
+    }
+
+    public void setPlayerReady() {
+        try {
+            gameSession.setPlayerReady(id);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void showGameOverMessage(boolean win, int urScore, int opScore) throws RemoteException {
+        /* try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
+        mainController.playerWonAlert((win ? "You won!" : "Game Over") +
+                "\nScore\nyou :" + urScore + "\nOpponent :" + opScore);
     }
 }

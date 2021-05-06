@@ -7,14 +7,16 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+// todo add coverage to player disconnected event
 public class TicTacToeSession implements RMIGameSession {
     private RMIGameClient player1;
     private RMIGameClient player2;
     private int id1;
     private int id2;
+    private int p1Score, p2Score;
     private boolean turnP1 = true;
     private boolean playable = true;
+    private boolean p1Ready, p2Ready;
     private final Tile[][] board;
     private final List<Combo> combos = new ArrayList<>();
 
@@ -59,15 +61,17 @@ public class TicTacToeSession implements RMIGameSession {
         this();
         this.player1 = player1;
         this.id1 = player1.hashCode();
-
+        p1Score = p2Score = 0;
         this.player2 = player2;
         this.id2 = player2.hashCode();
+        p1Ready = p2Ready = true;
     }
 
     @Override
     public synchronized boolean move(int c, int r, int id) throws RemoteException {
         boolean valid = false;
         // check if tile is occupied or game is playable
+        System.out.println(playable + " " + board[r][c].getValue());
         if (board[r][c].getValue() != 0
                 || !playable)
             return false;
@@ -85,7 +89,17 @@ public class TicTacToeSession implements RMIGameSession {
             board[r][c].setValue(2);
             turnP1 = true;
         }
-        checkState();
+        if (checkState()) {
+            int winningID;
+            if (id == id1) {
+                p1Score++;
+                winningID = id1;
+            } else {
+                p2Score++;
+                winningID = id2;
+            }
+            gameOver(winningID);
+        }
         return valid;
     }
 
@@ -98,25 +112,26 @@ public class TicTacToeSession implements RMIGameSession {
         }
     }
 
-    private void checkState() {
+    private boolean checkState() {
         for (Combo combo : combos) {
             if (combo.isComplete()) {
                 playable = false;
+                p1Ready = p2Ready = false;
                 int[] start = combo.tiles[0].getPos();
                 int[] end = combo.tiles[2].getPos();
                 try {
-                    player1.setEndGame(start, end);
-                    player2.setEndGame(start, end);
+                    player1.playGameOverRoutine(start, end);
+                    player2.playGameOverRoutine(start, end);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
                 // todo show game over alert
                 // todo keep score
                 // todo option to reset game
-                break;
+                return true;
             }
         }
-
+        return false;
     }
 
     private class Combo {
@@ -155,5 +170,39 @@ public class TicTacToeSession implements RMIGameSession {
         public int[] getPos() {
             return new int[]{r, c};
         }
+    }
+
+    @Override
+    public void sessionEnded(int id) throws RemoteException {
+        if (id1 == id)
+            player2.opponentDisconnected();
+        else if (id2 == id)
+            player1.opponentDisconnected();
+    }
+
+    public void gameOver(int winningID) throws RemoteException {
+        player1.showGameOverMessage(id1 == winningID, p1Score, p2Score);
+        player2.showGameOverMessage(id2 == winningID, p2Score, p1Score);
+        reset();
+    }
+    // todo handle client leaves matchmaking and then starts again
+
+
+    public void reset() {
+        for (int c = 0; c < 3; c++)
+            for (int r = 0; r < 3; r++) {
+                board[r][c].setValue(0);
+            }
+        turnP1 = true;
+    }
+
+    @Override
+    public void setPlayerReady(int id) throws RemoteException {
+        if (id == id1)
+            p1Ready = true;
+        if (id == id2)
+            p2Ready = true;
+        if (p1Ready && p2Ready)
+            playable = true;
     }
 }

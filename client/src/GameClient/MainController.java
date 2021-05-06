@@ -18,7 +18,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Arrays;
 
 import rmigameclient.RMIGameClient;
 import rmigameserver.RMIGameServer;
@@ -47,9 +46,9 @@ public class MainController {
     private rmigameclient.RMIGameClient gameClientStub = null;
     private Boolean connectedToMain = false;
     private Boolean connectedToGame = false;
-    private Boolean userLogged = false;
     private AlertBox alert;
     private Registry reg;
+    private Stage gameStage;
 
 
     public void initialize() {
@@ -94,6 +93,7 @@ public class MainController {
             mainServerStub = (RMIMainServer) reg.lookup("MainServer");
             mainServerStub.connect();
             connectedToMain = true;
+            connectMenuItem.setDisable(false);
 
             // display connection successful dialog
             new AlertBox(Alert.AlertType.INFORMATION,
@@ -149,7 +149,7 @@ public class MainController {
         //create alert box
         alert = new AlertBox(Alert.AlertType.INFORMATION,
                 connectedToMain ? "please wait" : "connection error",
-                connectedToMain);
+                !connectedToMain);
 
 
         //set alertBox on close action -> disconnect
@@ -157,8 +157,7 @@ public class MainController {
         alertWin.setOnCloseRequest(windowEvent -> {
             try {
                 if (connectedToMain) {
-                    connectMenuItem.setDisable(false);
-                    connectedToMain = false;
+                    //connectedToMain = false;
                     gameServerStub.disconnect(gameClientStub);
                 }
             } catch (RemoteException e) {
@@ -231,16 +230,44 @@ public class MainController {
 
     public void startGame(Parent root) {
         Platform.runLater(() -> {
-                    Stage stage = new Stage();
-                    stage.setScene(new Scene(root));
-                    stage.show();
+                    gameStage = new Stage();
+                    gameStage.setScene(new Scene(root));
+                    gameStage.setOnCloseRequest(e ->
+                    {
+                        System.out.println("closed");
+                        game.disconnect();
+
+                    });
+                    gameStage.show();
                 }
         );
     }
 
+    public void opponentDisconnectedAlert() {
+        Platform.runLater(() -> {
+                    AlertBox opponnetDisDialog =
+                            new AlertBox(Alert.AlertType.INFORMATION, "opponent disconnected"
+                                    , true);
+                    opponnetDisDialog.showAndWait();
+                    gameStage.close();
+                }
+        );
+    }
+
+    public void playerWonAlert(String msg) {
+        Platform.runLater(() -> {
+                    AlertBox gameOverDialog =
+                            new AlertBox(Alert.AlertType.INFORMATION, msg
+                                    , true);
+                    gameOverDialog.showAndWait();
+                    game.setPlayerReady();
+                    game.resetBoard();
+                }
+        );
+    }
 
     public void setUserLogged(boolean logged) {
-        userLogged = logged;
+        //userLogged = logged;
         startGameMenu.setDisable(false);
         signInMenuItem.setDisable(true);
         createUserMenuItem.setDisable(true);
