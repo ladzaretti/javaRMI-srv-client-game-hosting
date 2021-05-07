@@ -13,4 +13,7 @@ public interface RMIGameClient extends Remote {
     void opponentDisconnected() throws RemoteException;
 
     void showGameOverMessage(boolean win, int urScore, int opScore) throws RemoteException;
+
+    void ping() throws RemoteException;
+
 }

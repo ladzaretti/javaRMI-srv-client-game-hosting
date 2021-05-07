@@ -105,6 +105,34 @@ public class MainController {
             createUserMenuItem.setDisable(false);
             signInMenuItem.setDisable(false);
 
+
+            Thread ping = new Thread(() -> {
+                while (true) {
+                    try {
+                        Thread.sleep(5000);
+                        try {
+                            mainServerStub.ping();
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                            // display connection error msg
+                            serverIsDown("Main Server down");
+                            connectedToMain = false;
+                            connectedToGame = false;
+                            connectMenuItem.setDisable(false);
+                            startGameMenu.setDisable(true);
+                            createUserMenuItem.setDisable(true);
+                            signInMenuItem.setDisable(true);
+                            return;
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            ping.setDaemon(true);
+            ping.start();
+
+
             // todo show high score when connected to main server!
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -118,6 +146,23 @@ public class MainController {
         }
     }
 
+    protected void serverIsDown(String msg) {
+        Platform.runLater(() -> {
+                    AlertBox alertErr = new AlertBox(Alert.AlertType.INFORMATION,
+                            msg,
+                            true);
+                    alertErr.showAndWait();
+                    if (gameStage != null)
+                        gameStage.close();
+                    if (alert.isShowing())
+                        alert.close();
+                }
+        );
+    }
+
+    protected void setConnectedToGame(Boolean connectedToGame) {
+        this.connectedToGame = connectedToGame;
+    }
 
     @FXML
     public void startGameClicked() {
@@ -189,11 +234,13 @@ public class MainController {
         new Thread(connect).start();
     }
 
+
     public void closeWaitingBox() {
         Platform.runLater(() ->
                 alert.close()
         );
     }
+
 
     public void exitMenuPressed() {
         try {

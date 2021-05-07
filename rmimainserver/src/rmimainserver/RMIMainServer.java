@@ -15,4 +15,6 @@ public interface RMIMainServer extends Remote {
     String[] delete() throws RemoteException;
 
     void disconnect() throws RemoteException;
+
+    void ping() throws RemoteException;
 }

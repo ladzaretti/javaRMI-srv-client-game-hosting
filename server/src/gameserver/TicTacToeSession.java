@@ -5,9 +5,12 @@ import rmigamesession.RMIGameSession;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-// todo add coverage to player disconnected event
 public class TicTacToeSession implements RMIGameSession {
     private RMIGameClient player1;
     private RMIGameClient player2;
@@ -19,6 +22,8 @@ public class TicTacToeSession implements RMIGameSession {
     private boolean p1Ready, p2Ready;
     private final Tile[][] board;
     private final List<Combo> combos = new ArrayList<>();
+    private int moveCount;
+    private final int MAXMOVE = 9;
 
     public void setPlayer1(RMIGameClient player1) {
         this.player1 = player1;
@@ -65,19 +70,92 @@ public class TicTacToeSession implements RMIGameSession {
         this.player2 = player2;
         this.id2 = player2.hashCode();
         p1Ready = p2Ready = true;
+
+        Thread ping = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    player1.ping();
+                } catch (RemoteException e) {
+                    try {
+                        player2.opponentDisconnected();
+                        return;
+                    } catch (RemoteException remoteException) {
+                        remoteException.printStackTrace();
+                    }
+                    e.printStackTrace();
+                    return;
+                }
+                try {
+                    player2.ping();
+                } catch (RemoteException e) {
+                    try {
+                        player1.opponentDisconnected();
+                        return;
+                    } catch (RemoteException remoteException) {
+                        remoteException.printStackTrace();
+                    }
+                    e.printStackTrace();
+                    return;
+                }
+
+            }
+        });
+        ping.setDaemon(true);
+        ping.start();
+       /*ScheduledExecutorService scheduler =
+                Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    player1.ping();
+                } catch (RemoteException e) {
+                    try {
+                        player2.opponentDisconnected();
+                        return;
+                    } catch (RemoteException remoteException) {
+                        remoteException.printStackTrace();
+                    }
+                    e.printStackTrace();
+                    return;
+                }
+                try {
+                    player2.ping();
+                } catch (RemoteException e) {
+                    try {
+                        player1.opponentDisconnected();
+                        return;
+                    } catch (RemoteException remoteException) {
+                        remoteException.printStackTrace();
+                    }
+                    e.printStackTrace();
+                    return;
+                }
+
+            }
+        }, 0, 5, TimeUnit.SECONDS);*/
     }
 
     @Override
     public synchronized boolean move(int c, int r, int id) throws RemoteException {
         boolean valid = false;
         // check if tile is occupied or game is playable
-        System.out.println(playable + " " + board[r][c].getValue());
         if (board[r][c].getValue() != 0
                 || !playable)
             return false;
         if (id == id1 && turnP1) {
             //p1 turn
             valid = true;
+            moveCount++;
             player2.update(c, r);
             board[r][c].setValue(1);
             turnP1 = false;
@@ -85,6 +163,7 @@ public class TicTacToeSession implements RMIGameSession {
         if (id == id2 && !turnP1) {
             //p2 turn
             valid = true;
+            moveCount++;
             player1.update(c, r);
             board[r][c].setValue(2);
             turnP1 = true;
@@ -99,6 +178,10 @@ public class TicTacToeSession implements RMIGameSession {
                 winningID = id2;
             }
             gameOver(winningID);
+        }
+        if (playable && moveCount == MAXMOVE) {
+            gameOver(-1);
+
         }
         return valid;
     }
@@ -115,8 +198,6 @@ public class TicTacToeSession implements RMIGameSession {
     private boolean checkState() {
         for (Combo combo : combos) {
             if (combo.isComplete()) {
-                playable = false;
-                p1Ready = p2Ready = false;
                 int[] start = combo.tiles[0].getPos();
                 int[] end = combo.tiles[2].getPos();
                 try {
@@ -125,9 +206,6 @@ public class TicTacToeSession implements RMIGameSession {
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-                // todo show game over alert
-                // todo keep score
-                // todo option to reset game
                 return true;
             }
         }
@@ -185,8 +263,6 @@ public class TicTacToeSession implements RMIGameSession {
         player2.showGameOverMessage(id2 == winningID, p2Score, p1Score);
         reset();
     }
-    // todo handle client leaves matchmaking and then starts again
-
 
     public void reset() {
         for (int c = 0; c < 3; c++)
@@ -194,6 +270,9 @@ public class TicTacToeSession implements RMIGameSession {
                 board[r][c].setValue(0);
             }
         turnP1 = true;
+        moveCount = 0;
+        playable = false;
+        p1Ready = p2Ready = false;
     }
 
     @Override
@@ -204,5 +283,9 @@ public class TicTacToeSession implements RMIGameSession {
             p2Ready = true;
         if (p1Ready && p2Ready)
             playable = true;
+    }
+
+    @Override
+    public void ping() throws RemoteException {
     }
 }

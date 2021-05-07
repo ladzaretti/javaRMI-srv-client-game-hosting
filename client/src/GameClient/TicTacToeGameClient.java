@@ -65,6 +65,27 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
             connected = true;
             this.id = id;
             this.sign = sign;
+            Thread ping = new Thread(() -> {
+                while (true) {
+                    try {
+                        Thread.sleep(5000);
+                        try {
+                            gameSession.ping();
+                        } catch (RemoteException e) {
+                            e.printStackTrace();
+                            // display connection error msg
+                            mainController.serverIsDown("Game Session server down");
+                            connected = false;
+                            //mainController.setConnectedToGame(false);
+                            return;
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            ping.setDaemon(true);
+            ping.start();
         } catch (NotBoundException e) {
             e.printStackTrace();
         }
@@ -112,12 +133,11 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
 
     @Override
     public void showGameOverMessage(boolean win, int urScore, int opScore) throws RemoteException {
-        /* try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
         mainController.playerWonAlert((win ? "You won!" : "Game Over") +
                 "\nScore\nyou :" + urScore + "\nOpponent :" + opScore);
+    }
+
+    @Override
+    public void ping() throws RemoteException {
     }
 }

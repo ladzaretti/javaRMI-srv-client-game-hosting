@@ -40,6 +40,11 @@ public class MainServer implements RMIMainServer {
 
     }
 
+    @Override
+    public void ping() throws RemoteException {
+
+    }
+
     public static void main(String[] args) {
         try {
             int port = Integer.parseInt(args[0]);

@@ -9,4 +9,6 @@ public interface RMIGameSession extends Remote {
     void sessionEnded(int id) throws RemoteException;
 
     void setPlayerReady(int id) throws RemoteException;
+
+    void ping() throws RemoteException;
 }
