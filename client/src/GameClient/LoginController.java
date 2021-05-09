@@ -26,7 +26,6 @@ public class LoginController {
         // todo verify if password is legal
         // todo connect to sql
         String userpass = username.getText() + "\n" + password.getText();
-
         //close the login screen if successful
         Node source = (Node) e.getSource();
         Stage stage = (Stage) source.getScene().getWindow();

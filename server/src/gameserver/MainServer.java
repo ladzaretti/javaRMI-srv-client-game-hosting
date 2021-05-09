@@ -1,5 +1,11 @@
 package gameserver;
 
+import hibernate.entitiy.User;
+import javafx.application.Application;
+import javafx.stage.Stage;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 import rmigameserver.RMIGameServer;
 import rmimainserver.RMIMainServer;
 
@@ -8,31 +14,90 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.List;
 
-public class MainServer implements RMIMainServer {
+public class MainServer extends Application implements RMIMainServer {
+    private final SessionFactory factory;
+
+    public MainServer() {
+        // create session factory
+        factory = new Configuration()
+                .configure("hibernate.cfg.xml")
+                .addAnnotatedClass(User.class)
+                .buildSessionFactory();
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        stage.setTitle("Main Server");
+        stage.setOnCloseRequest(e -> factory.close());
+        stage.setResizable(false);
+        stage.setHeight(0);
+        stage.setWidth(300);
+        stage.show();
+    }
+
     @Override
     public String connect() throws RemoteException {
         return "connected to main srv";
     }
 
     @Override
-    public String[] create() throws RemoteException {
-        return new String[0];
+    public void create(String user, String password) throws RemoteException {
+        // create a session
+        Session session = factory.getCurrentSession();
+
+        // create a User object
+        User tempUser = new User(
+                user,
+                password);
+        // start a transaction
+        session.beginTransaction();
+
+        // save the student object
+        session.save(tempUser);
+
+        // commit transaction
+        session.getTransaction().commit();
     }
 
     @Override
-    public String[] update() throws RemoteException {
-        return new String[0];
+    public User read(String id) throws RemoteException {
+
+        // create a session
+        Session session = factory.getCurrentSession();
+        session.beginTransaction();
+
+        // retrieve student based on the id: primary key
+        User user = session.get(User.class, id);
+
+        // commit the transaction
+        session.getTransaction().commit();
+        session.close();
+        return user;
     }
 
     @Override
-    public String[] read() throws RemoteException {
-        return new String[0];
+    public void setQuery(String query) throws RemoteException {
+        // create a session
+        Session session = factory.getCurrentSession();
+        session.beginTransaction();
+
+        // set query
+        session.createQuery(query).executeUpdate();
+        session.close();
+
     }
 
     @Override
-    public String[] delete() throws RemoteException {
-        return new String[0];
+    public List<User> getQuery(String query) throws RemoteException {
+        // create a session
+        Session session = factory.getCurrentSession();
+        session.beginTransaction();
+        // get query
+        List<User> list = session.createQuery(query).getResultList();
+        session.close();
+        return list;
     }
 
     @Override
@@ -56,7 +121,10 @@ public class MainServer implements RMIMainServer {
             GameServer tttSrv = new GameServer(ticTacToe, port);
             GameServer cSrv = new GameServer(checkers, port);
 
-
+            //srv.create("asdf", "pass");
+            //System.out.println(srv.query("from User"));
+            //srv.setQuery("update User set tttLosses=10 where userName='asdf'");
+            //System.out.println(srv.read("asdf"));
             //export the remote object
             System.setProperty("java.rmi.server.hostname", "localhost");
             Registry reg = LocateRegistry.
@@ -82,7 +150,15 @@ public class MainServer implements RMIMainServer {
             //bind remote server to the registry
             reg.bind("MainServer", mainStub);
 
+
             System.err.println("server ready");
+            launch(args);
+
+            // cleaup
+            UnicastRemoteObject.unexportObject(tttSrv, false);
+            UnicastRemoteObject.unexportObject(cSrv, false);
+            UnicastRemoteObject.unexportObject(reg, false);
+            System.exit(0);
         } catch (Exception e) {
             System.err.println("Server exception: " + e);
             e.printStackTrace();

@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="hibernate" name="Hibernate">
+      <configuration>
+        <datasource-map />
+        <naming-strategy-map />
+        <deploymentDescriptor name="hibernate.cfg.xml" url="file://$MODULE_DIR$/src/hibernate.cfg.xml" />
+      </configuration>
+    </facet>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -11,5 +20,8 @@
     <orderEntry type="library" name="rmigameclient" level="project" />
     <orderEntry type="library" name="rmigamesession" level="project" />
     <orderEntry type="library" name="rmimainserver" level="project" />
+    <orderEntry type="library" name="mysql-connector-java-8.0.24" level="application" />
+    <orderEntry type="library" name="hibernate-release-5.4.31.Final" level="application" />
+    <orderEntry type="library" name="javafx11" level="application" />
   </component>
 </module>

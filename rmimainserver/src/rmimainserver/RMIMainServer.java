@@ -2,17 +2,19 @@ package rmimainserver;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 
-public interface RMIMainServer extends Remote {
+public interface RMIMainServer<T> extends Remote {
     String connect() throws RemoteException;
 
-    String[] create() throws RemoteException;
+    void create(String user, String password) throws RemoteException;
 
-    String[] update() throws RemoteException;
 
-    String[] read() throws RemoteException;
+    T read(String id) throws RemoteException;
 
-    String[] delete() throws RemoteException;
+    void setQuery(String query) throws RemoteException;
+
+    List<T> getQuery(String query) throws RemoteException;
 
     void disconnect() throws RemoteException;
 

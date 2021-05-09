@@ -41,6 +41,10 @@ public class MainController {
     @FXML
     private ToggleGroup gameType;
 
+    protected RMIMainServer getMainServerStub() {
+        return mainServerStub;
+    }
+
     private rmimainserver.RMIMainServer mainServerStub = null;
     private rmigameserver.RMIGameServer gameServerStub = null;
     private rmigameclient.RMIGameClient gameClientStub = null;
@@ -104,7 +108,6 @@ public class MainController {
             connectMenuItem.setDisable(true);
             createUserMenuItem.setDisable(false);
             signInMenuItem.setDisable(false);
-
 
             Thread ping = new Thread(() -> {
                 while (true) {
