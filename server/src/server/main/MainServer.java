@@ -1,4 +1,4 @@
-package gameserver;
+package server.main;
 
 import hibernate.entitiy.User;
 import javafx.application.Application;
@@ -8,6 +8,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import rmigameserver.RMIGameServer;
 import rmimainserver.RMIMainServer;
+import server.main.game.GameServer;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

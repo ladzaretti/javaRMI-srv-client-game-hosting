@@ -40,7 +40,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="172.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GameClient.CreateUserController">
+<VBox prefHeight="172.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.mainui.createuser.CreateUserController">
     <children>
         <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="227.0" prefWidth="478.0" VBox.vgrow="ALWAYS">
             <children>

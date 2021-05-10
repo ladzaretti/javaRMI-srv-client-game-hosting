@@ -1,4 +1,6 @@
-package GameClient;
+package client.game.tictactoe;
+
+import client.mainui.MainController;
 
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;

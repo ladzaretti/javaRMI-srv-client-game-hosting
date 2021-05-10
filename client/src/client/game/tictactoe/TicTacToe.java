@@ -1,4 +1,4 @@
-package GameClient;
+package client.game.tictactoe;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;

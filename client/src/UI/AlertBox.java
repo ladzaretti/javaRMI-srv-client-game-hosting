@@ -1,4 +1,4 @@
-package GameClient;
+package UI;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;

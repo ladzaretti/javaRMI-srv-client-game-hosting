@@ -1,4 +1,4 @@
-package gameserver;
+package server.main;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

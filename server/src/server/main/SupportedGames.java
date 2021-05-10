@@ -1,7 +1,6 @@
-package gameserver;
+package server.main;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 public enum SupportedGames {
     TICTAKTOE,

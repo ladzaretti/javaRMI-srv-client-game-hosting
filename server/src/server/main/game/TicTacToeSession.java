@@ -1,7 +1,9 @@
-package gameserver;
+package server.main.game;
 
 import rmigameclient.RMIGameClient;
 import rmigamesession.RMIGameSession;
+import server.main.MainServer;
+import server.main.SupportedGames;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;

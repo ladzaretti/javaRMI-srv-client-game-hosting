@@ -1,8 +1,11 @@
-package gameserver;
+package server.main.game;
 
 import rmigameserver.RMIGameServer;
 import rmigameclient.RMIGameClient;
 import rmigamesession.RMIGameSession;
+import server.main.SupportedGames;
+import server.main.BlockingMatchMaking;
+import server.main.MainServer;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -13,7 +16,6 @@ import java.util.ArrayList;
 
 
 public class GameServer implements RMIGameServer {
-
 
     BlockingMatchMaking<Remote> queue;
     int port;
@@ -64,4 +66,5 @@ public class GameServer implements RMIGameServer {
         queue.remove(client);
         System.out.println("disconnected thread: " + Thread.currentThread());
     }
+
 }

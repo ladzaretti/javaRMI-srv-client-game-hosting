@@ -1,4 +1,4 @@
-package GameClient;
+package client.mainui;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;

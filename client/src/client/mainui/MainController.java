@@ -1,5 +1,9 @@
-package GameClient;
+package client.mainui;
 
+import UI.AlertBox;
+import client.mainui.createuser.CreateUserController;
+import client.mainui.login.LoginController;
+import client.game.tictactoe.TicTacToeGameClient;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -153,7 +157,7 @@ public class MainController {
         }
     }
 
-    protected void serverIsDown(String msg) {
+    public void serverIsDown(String msg) {
         Platform.runLater(() -> {
                     AlertBox alertErr = new AlertBox(Alert.AlertType.INFORMATION,
                             msg,
@@ -267,7 +271,7 @@ public class MainController {
             FXMLLoader fxmlLoader;
             try {
                 fxmlLoader = new FXMLLoader(
-                        getClass().getResource("login_window.fxml"));
+                        getClass().getResource("login/login_window.fxml"));
                 Parent root = fxmlLoader.load();
                 LoginController loginController = fxmlLoader.getController();
                 loginController.setMain(this);
@@ -295,7 +299,7 @@ public class MainController {
             FXMLLoader fxmlLoader;
             try {
                 fxmlLoader = new FXMLLoader(
-                        getClass().getResource("create_user_window.fxml"));
+                        getClass().getResource("createuser/create_user_window.fxml"));
                 Parent root = fxmlLoader.load();
                 CreateUserController createUserController = fxmlLoader.getController();
                 createUserController.setMain(this);

@@ -1,5 +1,7 @@
-package GameClient;
+package client.mainui.login;
 
+import UI.AlertBox;
+import client.mainui.MainController;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -11,13 +13,11 @@ import rmimainserver.RMIMainServer;
 
 import java.rmi.RemoteException;
 
-public class CreateUserController {
+public class LoginController {
     @FXML
     TextField username;
     @FXML
     PasswordField password;
-    @FXML
-    PasswordField confirm;
     MainController main;
     RMIMainServer srv;
 
@@ -31,49 +31,35 @@ public class CreateUserController {
 
 
     @FXML
-    public String createButtonPressed(Event e) {
+    public void loginButtonPressed(Event e) {
         // retrieve user+pass
         // todo verify if password is legal
         // todo connect to sql
         String user = username.getText();
         String pass = password.getText();
-        String confirmPass = confirm.getText();
-        try {
-            // check if username and password are valid
-            if (pass.equals("") || user.equals("")) {
-                confirm.setText("");
-                new AlertBox(Alert.AlertType.INFORMATION,
-                        "Invalid username or password.\nPlease try again",
-                        true).show();
 
-            }
-            //check password confirmation
-            else if (!pass.equals(confirmPass)) {
-                confirm.setText("");
-                new AlertBox(Alert.AlertType.INFORMATION,
-                        "password confirmation failed.\nPlease retype password.",
-                        true).show();
-            }
-            //try to create user
-            else if (srv.createUser(user, pass)) {
+
+        //close the login screen if successful
+        try {
+            if (srv.signIn(user, pass)) {
                 Node source = (Node) e.getSource();
                 Stage stage = (Stage) source.getScene().getWindow();
                 stage.close();
+                main.setUserLogged(true);
+                main.setUsername(user);
                 new AlertBox(Alert.AlertType.INFORMATION,
-                        "User created successfully!\nPlease sign in.",
+                        "Login successful\nSelect game type and then start the game.",
                         true).show();
             } else {
                 username.setText("");
                 password.setText("");
-                confirm.setText("");
                 new AlertBox(Alert.AlertType.INFORMATION,
-                        "Username taken, please choose another one.",
+                        "Username or password incorrect.\nPlease try again.",
                         true).show();
             }
         } catch (RemoteException remoteException) {
             System.err.println("main server sql error");
             remoteException.printStackTrace();
         }
-        return username.getText();
     }
 }
