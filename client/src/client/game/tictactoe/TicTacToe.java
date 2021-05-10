@@ -105,7 +105,6 @@ public class TicTacToe {
                     e.printStackTrace();
                 }
             });
-
         }
 
         private void draw() {

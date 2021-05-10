@@ -1,4 +1,4 @@
-package server.main.game;
+package server.main.game.session;
 
 import rmigameclient.RMIGameClient;
 import rmigamesession.RMIGameSession;
@@ -29,6 +29,8 @@ public class TicTacToeSession implements RMIGameSession {
     private MainServer mainServer;
     private boolean updateSQLScore = false;
     private final Object lock = new Object();
+    private boolean sessionEnded = false;
+    private Thread ping;
 
     public void setPlayer1(RMIGameClient player1) {
         this.player1 = player1;
@@ -85,12 +87,14 @@ public class TicTacToeSession implements RMIGameSession {
         }
 
 
-        Thread ping = new Thread(() -> {
-            while (true) {
+        ping = new Thread(() -> {
+            while (!sessionEnded) {
                 try {
                     Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    if (sessionEnded)
+                        return;
                 }
                 try {
                     player1.ping();
@@ -244,6 +248,7 @@ public class TicTacToeSession implements RMIGameSession {
         return valid;
     }
 
+    @Override
     public void sendConnectionInfo(String msg) {
         try {
             player1.setConnectionInfo(msg, id1, "X");
@@ -314,6 +319,8 @@ public class TicTacToeSession implements RMIGameSession {
             player2.opponentDisconnected();
         else if (id2 == id)
             player1.opponentDisconnected();
+        sessionEnded = true;
+        ping.interrupt();
     }
 
     public void gameOver(int winningID) throws RemoteException {

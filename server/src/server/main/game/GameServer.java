@@ -6,6 +6,7 @@ import rmigamesession.RMIGameSession;
 import server.main.SupportedGames;
 import server.main.BlockingMatchMaking;
 import server.main.MainServer;
+import server.main.game.session.TicTacToeSession;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -21,7 +22,10 @@ public class GameServer implements RMIGameServer {
     int port;
     MainServer main;
 
-    public GameServer(BlockingMatchMaking<Remote> queue, int port, MainServer main) {
+    public GameServer(BlockingMatchMaking<Remote> queue,
+                      int port,
+                      MainServer main,
+                      SupportedGames type) {
         this.queue = queue;
         this.port = port;
         this.main = main;
@@ -32,14 +36,21 @@ public class GameServer implements RMIGameServer {
                 players = queue.clear();
                 RMIGameClient p1 = (RMIGameClient) players.get(0);
                 RMIGameClient p2 = (RMIGameClient) players.get(1);
-                TicTacToeSession gameSession = new TicTacToeSession(p1, p2, main);
-
+                RMIGameSession gameSession = null;
+                if (type == SupportedGames.TICTAKTOE)
+                    gameSession = new TicTacToeSession(p1, p2, main);
+                else if (type == SupportedGames.CHECKERS) {
+                    // todo create checkers session
+                }
                 try {
                     RMIGameSession gameSessionStub =
-                            (RMIGameSession) UnicastRemoteObject.exportObject(gameSession, port);
+                            (RMIGameSession) UnicastRemoteObject.exportObject(
+                                    gameSession,
+                                    port);
                     Registry reg = LocateRegistry.getRegistry(port);
                     reg.bind(gameSessionInfo =
                             String.valueOf(gameSessionStub.hashCode()), gameSessionStub);
+                    assert gameSession != null;
                     gameSession.sendConnectionInfo(gameSessionInfo);
                 } catch (Exception e) {
                     e.printStackTrace();

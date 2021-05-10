@@ -161,8 +161,14 @@ public class MainServer extends Application implements RMIMainServer {
             BlockingMatchMaking<Remote> checkers = new BlockingMatchMaking<>(2);
 
             MainServer srv = new MainServer();
-            GameServer tttSrv = new GameServer(ticTacToe, port, srv);
-            GameServer cSrv = new GameServer(checkers, port, srv);
+            GameServer tttSrv = new GameServer(ticTacToe,
+                    port,
+                    srv,
+                    SupportedGames.TICTAKTOE);
+            GameServer cSrv = new GameServer(checkers,
+                    port,
+                    srv,
+                    SupportedGames.CHECKERS);
 
             System.setProperty("java.rmi.server.hostname", "localhost");
             Registry reg = LocateRegistry.
