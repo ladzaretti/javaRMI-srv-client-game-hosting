@@ -5,25 +5,28 @@ import rmigamesession.RMIGameSession;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class TicTacToeSession implements RMIGameSession {
     private RMIGameClient player1;
     private RMIGameClient player2;
+    private String player1UserName;
+    private String player2UserName;
     private int id1;
     private int id2;
     private int p1Score, p2Score;
     private boolean turnP1 = true;
     private boolean playable = true;
     private boolean p1Ready, p2Ready;
+    private boolean p1Won = false;
+    private boolean p2Won = false;
     private final Tile[][] board;
     private final List<Combo> combos = new ArrayList<>();
     private int moveCount;
     private final int MAXMOVE = 9;
+    private MainServer mainServer;
+    private boolean updateSQLScore = false;
+    private final Object lock = new Object();
 
     public void setPlayer1(RMIGameClient player1) {
         this.player1 = player1;
@@ -62,14 +65,23 @@ public class TicTacToeSession implements RMIGameSession {
                 board[0][2]));
     }
 
-    public TicTacToeSession(RMIGameClient player1, RMIGameClient player2) {
+    public TicTacToeSession(RMIGameClient player1, RMIGameClient player2, MainServer mainServer) {
         this();
+        this.mainServer = mainServer;
         this.player1 = player1;
         this.id1 = player1.hashCode();
         p1Score = p2Score = 0;
         this.player2 = player2;
         this.id2 = player2.hashCode();
         p1Ready = p2Ready = true;
+
+        try {
+            player1UserName = player1.getUserName();
+            player2UserName = player2.getUserName();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
 
         Thread ping = new Thread(() -> {
             while (true) {
@@ -82,11 +94,20 @@ public class TicTacToeSession implements RMIGameSession {
                     player1.ping();
                 } catch (RemoteException e) {
                     try {
-                        // todo update sql score
+                        // update sql score
+                       /* mainServer.updateSQLUser(player1UserName,
+                                p1Score,
+                                p2Score,
+                                SupportedGames.TICTAKTOE);
+                        mainServer.updateSQLUser(player2UserName,
+                                p2Score,
+                                p1Score,
+                                SupportedGames.TICTAKTOE);*/
                         player2.opponentDisconnected();
                         return;
                     } catch (RemoteException remoteException) {
                         remoteException.printStackTrace();
+                        System.err.println("player1 disconnected on session: " + this);
                     }
                     e.printStackTrace();
                     return;
@@ -95,10 +116,19 @@ public class TicTacToeSession implements RMIGameSession {
                     player2.ping();
                 } catch (RemoteException e) {
                     try {
-                        // todo update sql score
+                        // update sql score
+                        /*mainServer.updateSQLUser(player1UserName,
+                                p1Score,
+                                p2Score,
+                                SupportedGames.TICTAKTOE);
+                        mainServer.updateSQLUser(player2UserName,
+                                p2Score,
+                                p1Score,
+                                SupportedGames.TICTAKTOE);*/
                         player1.opponentDisconnected();
                         return;
                     } catch (RemoteException remoteException) {
+                        System.err.println("player2 disconnected on session: " + this);
                         remoteException.printStackTrace();
                     }
                     e.printStackTrace();
@@ -145,6 +175,30 @@ public class TicTacToeSession implements RMIGameSession {
 
             }
         }, 0, 5, TimeUnit.SECONDS);*/
+
+        new Thread(() -> {
+            while (true) {
+                synchronized (lock) {
+                    try {
+                        lock.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("done waiting");
+                    mainServer.updateSQLUser(player1UserName,
+                            p1Won ? 1 : 0,
+                            p2Won ? 1 : 0,
+                            SupportedGames.TICTAKTOE);
+                    mainServer.updateSQLUser(player2UserName,
+                            p2Won ? 1 : 0,
+                            p1Won ? 1 : 0,
+                            SupportedGames.TICTAKTOE);
+                    p1Won = p2Won = false;
+                    updateSQLScore = false;
+                }
+
+            }
+        }).start();
     }
 
     @Override
@@ -254,7 +308,6 @@ public class TicTacToeSession implements RMIGameSession {
 
     @Override
     public void sessionEnded(int id) throws RemoteException {
-        // todo update sql score
         if (id1 == id)
             player2.opponentDisconnected();
         else if (id2 == id)
@@ -264,8 +317,11 @@ public class TicTacToeSession implements RMIGameSession {
     public void gameOver(int winningID) throws RemoteException {
         player1.showGameOverMessage(id1 == winningID, p1Score, p2Score);
         player2.showGameOverMessage(id2 == winningID, p2Score, p1Score);
+        p1Won = winningID == id1;
+        p2Won = winningID == id2;
         reset();
     }
+
 
     public void reset() {
         for (int c = 0; c < 3; c++)
@@ -276,6 +332,11 @@ public class TicTacToeSession implements RMIGameSession {
         moveCount = 0;
         playable = false;
         p1Ready = p2Ready = false;
+        //toggle status
+        updateSQLScore = true;
+        synchronized (lock) {
+            lock.notifyAll();
+        }
     }
 
     @Override

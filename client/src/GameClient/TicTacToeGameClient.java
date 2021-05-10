@@ -140,6 +140,11 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
     }
 
     @Override
+    public String getUserName() throws RemoteException {
+        return mainController.getUsername();
+    }
+
+    @Override
     public void ping() throws RemoteException {
     }
 }

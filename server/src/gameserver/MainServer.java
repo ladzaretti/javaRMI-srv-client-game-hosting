@@ -42,7 +42,6 @@ public class MainServer extends Application implements RMIMainServer {
         return "connected to main srv";
     }
 
-    @Override
     public void create(String user, String password) throws RemoteException {
         // create a session
         Session session = factory.getCurrentSession();
@@ -61,8 +60,7 @@ public class MainServer extends Application implements RMIMainServer {
         session.getTransaction().commit();
     }
 
-    @Override
-    public User read(String id) throws RemoteException {
+    public User read(String id) {
 
         // create a session
         Session session = factory.getCurrentSession();
@@ -77,8 +75,7 @@ public class MainServer extends Application implements RMIMainServer {
         return user;
     }
 
-    @Override
-    public void setQuery(String query) throws RemoteException {
+    public void setQuery(String query) {
         // create a session
         Session session = factory.getCurrentSession();
         session.beginTransaction();
@@ -89,8 +86,7 @@ public class MainServer extends Application implements RMIMainServer {
 
     }
 
-    @Override
-    public List<User> getQuery(String query) throws RemoteException {
+    public List<User> getQuery(String query) {
         // create a session
         Session session = factory.getCurrentSession();
         session.beginTransaction();
@@ -125,6 +121,32 @@ public class MainServer extends Application implements RMIMainServer {
         return true;
     }
 
+    public void updateSQLUser(String username, int wins, int losses, SupportedGames type) {
+        User user = read(username);
+        String query = "";
+        int updatedWins, updatedLosses, diff;
+        if (type == SupportedGames.TICTAKTOE) {
+            updatedWins = user.getTttWins() + wins;
+            updatedLosses = user.getTttLoses() + losses;
+            diff = user.getTttDiff() + wins - losses;
+            query = "UPDATE User set tttWins = " + updatedWins
+                    + ", tttLosses = " + updatedLosses
+                    + ", tttDiff = " + diff
+                    + "where userName ='" + username + "'";
+            System.out.println("query: [" + query + "]");
+        } else if (type == SupportedGames.CHECKERS) {
+            updatedWins = user.getChWins() + wins;
+            updatedLosses = user.getChLoses() + losses;
+            diff = user.getChDiff() + wins - losses;
+            query = "UPDATE User set chWins = " + updatedWins
+                    + ", chLosses = " + updatedLosses
+                    + ", chDiff = " + diff
+                    + "where userName ='" + username + "'";
+            System.out.println("query: [" + query + "]");
+        }
+        setQuery(query);
+    }
+
     @Override
     public void ping() throws RemoteException {
 
@@ -138,8 +160,8 @@ public class MainServer extends Application implements RMIMainServer {
             BlockingMatchMaking<Remote> checkers = new BlockingMatchMaking<>(2);
 
             MainServer srv = new MainServer();
-            GameServer tttSrv = new GameServer(ticTacToe, port);
-            GameServer cSrv = new GameServer(checkers, port);
+            GameServer tttSrv = new GameServer(ticTacToe, port, srv);
+            GameServer cSrv = new GameServer(checkers, port, srv);
 
             System.setProperty("java.rmi.server.hostname", "localhost");
             Registry reg = LocateRegistry.

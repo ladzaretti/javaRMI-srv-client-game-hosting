@@ -89,6 +89,9 @@ public class MainController {
 
     TicTacToeGameClient game = null;
 
+    public String getUsername() {
+        return username;
+    }
 
     @FXML
     public void connectMenuPressed() {
@@ -288,7 +291,7 @@ public class MainController {
     @FXML
     public void createUserMenuPressed(ActionEvent event) {
         try {
-            //load login screen
+            //load create user screen
             FXMLLoader fxmlLoader;
             try {
                 fxmlLoader = new FXMLLoader(
@@ -323,6 +326,16 @@ public class MainController {
         );
     }
 
+    private void displayNewGenericMessage(String msg, boolean show) {
+        Platform.runLater(() -> {
+                    AlertBox gameOverDialog =
+                            new AlertBox(Alert.AlertType.INFORMATION, msg
+                                    , true);
+                    gameOverDialog.showAndWait();
+                }
+        );
+    }
+
     public void opponentDisconnectedAlert() {
         Platform.runLater(() -> {
                     AlertBox opponnetDisDialog =
@@ -330,31 +343,22 @@ public class MainController {
                                     , true);
                     opponnetDisDialog.showAndWait();
                     gameStage.close();
+
                 }
         );
+        //displayNewGenericMessage("opponent disconnected", true);
     }
-
-    public void displayGenericMessage(String msg) {
-        Platform.runLater(() -> {
-                    AlertBox gameOverDialog =
-                            new AlertBox(Alert.AlertType.INFORMATION, msg
-                                    , true);
-                    gameOverDialog.showAndWait();
-                }
-        );
-    }
-
 
     public void playerWonAlert(String msg) {
         Platform.runLater(() -> {
-                    AlertBox gameOverDialog =
-                            new AlertBox(Alert.AlertType.INFORMATION, msg
-                                    , true);
-                    gameOverDialog.showAndWait();
-                    game.setPlayerReady();
-                    game.resetBoard();
-                }
-        );
+            AlertBox gameOverDialog =
+                    new AlertBox(Alert.AlertType.INFORMATION, msg
+                            , true);
+            gameOverDialog.showAndWait();
+            game.setPlayerReady();
+            game.resetBoard();
+        });
+        //displayNewGenericMessage(msg, true);
     }
 
     public void setUserLogged(boolean logged) {

@@ -17,10 +17,12 @@ public class GameServer implements RMIGameServer {
 
     BlockingMatchMaking<Remote> queue;
     int port;
+    MainServer main;
 
-    public GameServer(BlockingMatchMaking<Remote> queue, int port) {
+    public GameServer(BlockingMatchMaking<Remote> queue, int port, MainServer main) {
         this.queue = queue;
         this.port = port;
+        this.main = main;
         new Thread(() -> {
             ArrayList<Remote> players;
             while (true) {
@@ -28,7 +30,7 @@ public class GameServer implements RMIGameServer {
                 players = queue.clear();
                 RMIGameClient p1 = (RMIGameClient) players.get(0);
                 RMIGameClient p2 = (RMIGameClient) players.get(1);
-                TicTacToeSession gameSession = new TicTacToeSession(p1, p2);
+                TicTacToeSession gameSession = new TicTacToeSession(p1, p2, main);
 
                 try {
                     RMIGameSession gameSessionStub =

@@ -16,4 +16,5 @@ public interface RMIGameClient extends Remote {
 
     void ping() throws RemoteException;
 
+    String getUserName() throws RemoteException;
 }
