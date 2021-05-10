@@ -53,6 +53,7 @@ public class MainController {
     private AlertBox alert;
     private Registry reg;
     private Stage gameStage;
+    private String username;
 
 
     public void initialize() {
@@ -267,6 +268,35 @@ public class MainController {
                 Parent root = fxmlLoader.load();
                 LoginController loginController = fxmlLoader.getController();
                 loginController.setMain(this);
+                loginController.setSrv(mainServerStub);
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+
+    @FXML
+    public void createUserMenuPressed(ActionEvent event) {
+        try {
+            //load login screen
+            FXMLLoader fxmlLoader;
+            try {
+                fxmlLoader = new FXMLLoader(
+                        getClass().getResource("create_user_window.fxml"));
+                Parent root = fxmlLoader.load();
+                CreateUserController createUserController = fxmlLoader.getController();
+                createUserController.setMain(this);
+                createUserController.setSrv(mainServerStub);
                 Stage stage = new Stage();
                 stage.setScene(new Scene(root));
                 stage.show();
@@ -303,6 +333,17 @@ public class MainController {
                 }
         );
     }
+
+    public void displayGenericMessage(String msg) {
+        Platform.runLater(() -> {
+                    AlertBox gameOverDialog =
+                            new AlertBox(Alert.AlertType.INFORMATION, msg
+                                    , true);
+                    gameOverDialog.showAndWait();
+                }
+        );
+    }
+
 
     public void playerWonAlert(String msg) {
         Platform.runLater(() -> {

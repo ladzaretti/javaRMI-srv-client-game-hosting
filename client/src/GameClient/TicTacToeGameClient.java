@@ -13,7 +13,9 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
     private final Object lock;
     private rmigamesession.RMIGameSession gameSession = null;
     private Boolean connected = false;
+    // id given by game session server
     private int id;
+    // game sign given by session
     private String sign;
     private TicTacToe ticTacToe;
 

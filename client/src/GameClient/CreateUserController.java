@@ -11,11 +11,13 @@ import rmimainserver.RMIMainServer;
 
 import java.rmi.RemoteException;
 
-public class LoginController {
+public class CreateUserController {
     @FXML
     TextField username;
     @FXML
     PasswordField password;
+    @FXML
+    PasswordField confirm;
     MainController main;
     RMIMainServer srv;
 
@@ -29,35 +31,49 @@ public class LoginController {
 
 
     @FXML
-    public void loginButtonPressed(Event e) {
+    public String createButtonPressed(Event e) {
         // retrieve user+pass
         // todo verify if password is legal
         // todo connect to sql
         String user = username.getText();
         String pass = password.getText();
-
-
-        //close the login screen if successful
+        String confirmPass = confirm.getText();
         try {
-            if (srv.signIn(user, pass)) {
+            // check if username and password are valid
+            if (pass.equals("") || user.equals("")) {
+                confirm.setText("");
+                new AlertBox(Alert.AlertType.INFORMATION,
+                        "Invalid username or password.\nPlease try again",
+                        true).show();
+
+            }
+            //check password confirmation
+            else if (!pass.equals(confirmPass)) {
+                confirm.setText("");
+                new AlertBox(Alert.AlertType.INFORMATION,
+                        "password confirmation failed.\nPlease retype password.",
+                        true).show();
+            }
+            //try to create user
+            else if (srv.createUser(user, pass)) {
                 Node source = (Node) e.getSource();
                 Stage stage = (Stage) source.getScene().getWindow();
                 stage.close();
-                main.setUserLogged(true);
-                main.setUsername(user);
                 new AlertBox(Alert.AlertType.INFORMATION,
-                        "Login successful\nSelect game type and then start the game.",
+                        "User created successfully!\nPlease sign in.",
                         true).show();
             } else {
                 username.setText("");
                 password.setText("");
+                confirm.setText("");
                 new AlertBox(Alert.AlertType.INFORMATION,
-                        "Username or password incorrect.\nPlease try again.",
+                        "Username taken, please choose another one.",
                         true).show();
             }
         } catch (RemoteException remoteException) {
             System.err.println("main server sql error");
             remoteException.printStackTrace();
         }
+        return username.getText();
     }
 }

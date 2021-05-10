@@ -82,6 +82,7 @@ public class TicTacToeSession implements RMIGameSession {
                     player1.ping();
                 } catch (RemoteException e) {
                     try {
+                        // todo update sql score
                         player2.opponentDisconnected();
                         return;
                     } catch (RemoteException remoteException) {
@@ -94,6 +95,7 @@ public class TicTacToeSession implements RMIGameSession {
                     player2.ping();
                 } catch (RemoteException e) {
                     try {
+                        // todo update sql score
                         player1.opponentDisconnected();
                         return;
                     } catch (RemoteException remoteException) {
@@ -252,6 +254,7 @@ public class TicTacToeSession implements RMIGameSession {
 
     @Override
     public void sessionEnded(int id) throws RemoteException {
+        // todo update sql score
         if (id1 == id)
             player2.opponentDisconnected();
         else if (id2 == id)

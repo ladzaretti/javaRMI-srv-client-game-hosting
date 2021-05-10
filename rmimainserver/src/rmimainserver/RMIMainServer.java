@@ -18,5 +18,11 @@ public interface RMIMainServer<T> extends Remote {
 
     void disconnect() throws RemoteException;
 
+    boolean signIn(String user, String password) throws RemoteException;
+
+    boolean createUser(String user, String password) throws RemoteException;
+
+    void updateSQLUser(int win, int loss) throws RemoteException;
+
     void ping() throws RemoteException;
 }

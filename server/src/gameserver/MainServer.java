@@ -105,6 +105,26 @@ public class MainServer extends Application implements RMIMainServer {
 
     }
 
+
+    @Override
+    public boolean signIn(String username, String pass) throws RemoteException {
+        User user = read(username);
+        if (user == null)
+            return false;
+        return user.getUserName().equals(username) &&
+                user.getPassword().equals(pass);
+    }
+
+    @Override
+    public boolean createUser(String username, String password) throws RemoteException {
+        // check if user exists
+        if (read(username) != null)
+            return false;
+        else
+            create(username, password);
+        return true;
+    }
+
     @Override
     public void ping() throws RemoteException {
 
@@ -121,11 +141,6 @@ public class MainServer extends Application implements RMIMainServer {
             GameServer tttSrv = new GameServer(ticTacToe, port);
             GameServer cSrv = new GameServer(checkers, port);
 
-            //srv.create("asdf", "pass");
-            //System.out.println(srv.query("from User"));
-            //srv.setQuery("update User set tttLosses=10 where userName='asdf'");
-            //System.out.println(srv.read("asdf"));
-            //export the remote object
             System.setProperty("java.rmi.server.hostname", "localhost");
             Registry reg = LocateRegistry.
                     createRegistry(port);

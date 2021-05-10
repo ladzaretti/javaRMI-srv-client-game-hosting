@@ -52,7 +52,7 @@
                   <MenuItem fx:id="connectMenuItem" mnemonicParsing="false" onAction="#connectMenuPressed" text="Connect" />
             <MenuItem fx:id="startGameMenu" disable="true" mnemonicParsing="false" onAction="#startGameClicked" text="Start Game" />
             <MenuItem fx:id="signInMenuItem" disable="true" mnemonicParsing="false" onAction="#signinMenuPressed" text="Sign In" />
-                  <MenuItem fx:id="createUserMenuItem" disable="true" mnemonicParsing="false" text="Create New User" />
+                  <MenuItem fx:id="createUserMenuItem" disable="true" mnemonicParsing="false" onAction="#createUserMenuPressed" text="Create New User" />
             <Menu fx:id="gameTypeMenu" disable="true" mnemonicParsing="false" text="Choose Game Type">
                      <items>
                         <RadioMenuItem mnemonicParsing="false" selected="true" text="Tic Tac Toe">
