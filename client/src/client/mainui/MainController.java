@@ -318,6 +318,7 @@ public class MainController {
     public void startGame(Parent root) {
         Platform.runLater(() -> {
                     gameStage = new Stage();
+                    gameStage.setTitle("Game Session: " + username);
                     gameStage.setScene(new Scene(root));
                     gameStage.setOnCloseRequest(e ->
                     {
@@ -325,6 +326,7 @@ public class MainController {
                         game.disconnect();
 
                     });
+                    gameStage.setResizable(false);
                     gameStage.show();
                 }
         );

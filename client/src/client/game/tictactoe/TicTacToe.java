@@ -6,8 +6,13 @@ import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -23,12 +28,15 @@ public class TicTacToe {
     private final static int RECTSIZE = 100;
     private final static int BOARDSIZE = 300;
     private final Tile[][] board = new Tile[3][3];
-    private final Pane root = new Pane();
+    private final HBox root = new HBox();
     private final RMIGameSession srv;
     private final int playerID;
     private final String sign;
     private final String opSign;
     private Line line;
+    private TextArea chatScreen;
+    private TextField chatMsg;
+    private Button sendButton;
 
     public TicTacToe(RMIGameSession srv, int id, String sign) {
         this.srv = srv;
@@ -61,23 +69,53 @@ public class TicTacToe {
                     timeline.play();
                 }
         );
-
     }
 
     public Parent createContent() {
-        root.setPrefSize(BOARDSIZE, BOARDSIZE);
+        Pane pane = new Pane();
+        pane.setPrefSize(BOARDSIZE, BOARDSIZE);
         for (int i = 0; i < 3; i++)
             for (int j = 0; j < 3; j++) {
                 Tile tile = new Tile(i, j);
                 tile.setTranslateX(j * RECTSIZE);
                 tile.setTranslateY(i * RECTSIZE);
 
-                root.getChildren().add(tile);
+                pane.getChildren().add(tile);
 
                 board[j][i] = tile;
             }
-
+        VBox vbox = new VBox();
+        vbox.setPrefSize(BOARDSIZE, BOARDSIZE);
+        chatScreen = new TextArea();
+        chatScreen.setWrapText(true);
+        chatScreen.setEditable(false);
+        chatScreen.setPrefSize(BOARDSIZE, BOARDSIZE * 0.92);
+        vbox.getChildren().add(chatScreen);
+        HBox hboxSend = new HBox();
+        chatMsg = new TextField();
+        chatMsg.setPrefSize(BOARDSIZE * 0.75, BOARDSIZE * 0.08);
+        sendButton = new Button("SEND");
+        sendButton.setOnAction(e -> {
+            String msg = chatMsg.getText();
+            if (msg.length() > 0) {
+                try {
+                    chatScreen.appendText("you: " + msg + "\n");
+                    srv.sendChatMessage(playerID, msg + "\n");
+                } catch (RemoteException remoteException) {
+                    remoteException.printStackTrace();
+                }
+            }
+            chatMsg.clear();
+        });
+        sendButton.setPrefSize(BOARDSIZE * 0.25, BOARDSIZE * 0.08);
+        hboxSend.getChildren().addAll(chatMsg, sendButton);
+        vbox.getChildren().add(hboxSend);
+        root.getChildren().addAll(pane, vbox);
         return root;
+    }
+
+    public void updateChat(String msg) {
+        chatScreen.appendText(msg);
     }
 
     private class Tile extends StackPane {

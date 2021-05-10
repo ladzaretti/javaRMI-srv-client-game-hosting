@@ -359,6 +359,23 @@ public class TicTacToeSession implements RMIGameSession {
     }
 
     @Override
+    public void sendChatMessage(int id, String msg) {
+        if (id == id1) {
+            try {
+                player2.recieveChatMessage(player1UserName + ": " + msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        } else if (id == id2)
+            try {
+                player1.recieveChatMessage(player2UserName + ": " + msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+
+    }
+
+    @Override
     public void ping() throws RemoteException {
     }
 }

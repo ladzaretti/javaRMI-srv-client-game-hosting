@@ -12,6 +12,8 @@ public interface RMIGameSession extends Remote {
 
     void ping() throws RemoteException;
 
+    void sendChatMessage(int id, String msg) throws RemoteException;
+
     void sendConnectionInfo(String msg) throws RemoteException;
 
 }

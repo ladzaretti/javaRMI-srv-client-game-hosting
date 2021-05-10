@@ -105,6 +105,12 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
         ticTacToe.drawOpponent(x, y);
     }
 
+
+    @Override
+    public void recieveChatMessage(String msg) {
+        ticTacToe.updateChat(msg);
+    }
+
     @Override
     public void playGameOverRoutine(int[] start, int[] end) throws RemoteException {
         ticTacToe.playWinAnimation(start, end);
