@@ -7,6 +7,7 @@ import server.main.SupportedGames;
 import server.main.BlockingMatchMaking;
 import server.main.MainServer;
 import server.main.game.session.TicTacToeSession;
+import server.main.game.session.TicTacToeSessionRed;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -39,6 +40,8 @@ public class GameServer implements RMIGameServer {
                 RMIGameSession gameSession = null;
                 if (type == SupportedGames.TICTAKTOE)
                     gameSession = new TicTacToeSession(p1, p2, main);
+                else if (type == SupportedGames.TICTAKTOERED)
+                    gameSession = new TicTacToeSessionRed(p1, p2, main);
                 else if (type == SupportedGames.CHECKERS) {
                     // todo create checkers session
                 }

@@ -1,7 +1,10 @@
 package client.mainui;
 
 import UI.AlertBox;
+import client.SupportedGames;
+import client.game.tictactoered.TicTacToeRedGameClient;
 import client.mainui.createuser.CreateUserController;
+import client.mainui.highscoretableview.HSTableCtrl;
 import client.mainui.login.LoginController;
 import client.game.tictactoe.TicTacToeGameClient;
 import javafx.application.Platform;
@@ -12,6 +15,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -43,7 +47,12 @@ public class MainController {
     @FXML
     private MenuItem signInMenuItem;
     @FXML
+    private MenuItem refreshMenuItem;
+    @FXML
     private ToggleGroup gameType;
+    @FXML
+    private AnchorPane anchorPane;
+
 
     protected RMIMainServer getMainServerStub() {
         return mainServerStub;
@@ -58,7 +67,8 @@ public class MainController {
     private Registry reg;
     private Stage gameStage;
     private String username;
-
+    private HSTableCtrl hsTableCtrl;
+    private SupportedGames gameTypeEnum;
 
     public void initialize() {
         vbox.sceneProperty().addListener((observableScene,
@@ -89,9 +99,18 @@ public class MainController {
                 });
             }
         });
+        FXMLLoader fxmlLoader = new FXMLLoader(
+                getClass().getResource("highscoretableview/highscore_tableview.fxml"));
+        try {
+            Parent table = fxmlLoader.load();
+            hsTableCtrl = fxmlLoader.getController();
+            anchorPane.getChildren().add(table);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    TicTacToeGameClient game = null;
+    RMIGameClient game = null;
 
     public String getUsername() {
         return username;
@@ -106,7 +125,9 @@ public class MainController {
             mainServerStub.connect();
             connectedToMain = true;
             connectMenuItem.setDisable(false);
-
+            // load high score data
+            hsTableCtrl.setSrv(mainServerStub);
+            hsTableCtrl.updateHighScoreTable();
             // display connection successful dialog
             new AlertBox(Alert.AlertType.INFORMATION,
                     "Connection successful\nPlease Sign in/Create new user",
@@ -116,6 +137,7 @@ public class MainController {
             connectMenuItem.setDisable(true);
             createUserMenuItem.setDisable(false);
             signInMenuItem.setDisable(false);
+            refreshMenuItem.setDisable(false);
 
             Thread ping = new Thread(() -> {
                 while (true) {
@@ -133,6 +155,8 @@ public class MainController {
                             startGameMenu.setDisable(true);
                             createUserMenuItem.setDisable(true);
                             signInMenuItem.setDisable(true);
+                            refreshMenuItem.setDisable(true);
+
                             return;
                         }
                     } catch (InterruptedException e) {
@@ -143,7 +167,7 @@ public class MainController {
             ping.setDaemon(true);
             ping.start();
 
-
+            // todo fix app is hanging after closing
             // todo show high score when connected to main server!
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -153,6 +177,14 @@ public class MainController {
                     true);
             alertErr.show();
         } catch (NotBoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getHighScoreFromSQL() {
+        try {
+            mainServerStub.signIn("asdasd", "asddddddddddddddd");
+        } catch (RemoteException e) {
             e.printStackTrace();
         }
     }
@@ -185,14 +217,24 @@ public class MainController {
         try {
             gameServer = gameSelected.replaceAll("\\s", "") + "Server";
             gameServerStub = (RMIGameServer) reg.lookup(gameServer);
-
             // export the object of the game thread for the server usage
+            if (gameServer.equals("TicTacToeServer")) {
+                gameTypeEnum = SupportedGames.TICTAKTOE;
+                game = new TicTacToeGameClient(this);
+            } else if (gameServer.equals("TicTacToeRedServer")) {
+                gameTypeEnum = SupportedGames.TICTAKTOERED;
+                game = new TicTacToeRedGameClient(this);
+            } else if (gameServer.equals("CheckersServer")) {
+                // todo create checkers session
+                gameTypeEnum = SupportedGames.CHECKERS;
+            }
+
             gameClientStub = (RMIGameClient) UnicastRemoteObject.exportObject(
-                    game = new TicTacToeGameClient(this), 0);
+                    game, 0);
             connectedToGame = true;
 
             // deploy game handling thread
-            Thread t = new Thread(game);
+            Thread t = new Thread((Runnable) game);
             t.start();
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -323,8 +365,17 @@ public class MainController {
                     gameStage.setOnCloseRequest(e ->
                     {
                         System.out.println("closed");
-                        game.disconnect();
-
+                        switch (gameTypeEnum) {
+                            case CHECKERS -> {
+                                // todo add later
+                            }
+                            case TICTAKTOE -> {
+                                ((TicTacToeGameClient) game).disconnect();
+                            }
+                            case TICTAKTOERED -> {
+                                ((TicTacToeRedGameClient) game).disconnect();
+                            }
+                        }
                     });
                     gameStage.setResizable(false);
                     gameStage.show();
@@ -361,10 +412,36 @@ public class MainController {
                     new AlertBox(Alert.AlertType.INFORMATION, msg
                             , true);
             gameOverDialog.showAndWait();
-            game.setPlayerReady();
-            game.resetBoard();
+            switch (gameTypeEnum) {
+                case CHECKERS -> {
+                    // todo add later
+                }
+                case TICTAKTOE -> {
+                    ((TicTacToeGameClient) game).setPlayerReady();
+                    ((TicTacToeGameClient) game).resetBoard();
+                }
+                case TICTAKTOERED -> {
+                    ((TicTacToeRedGameClient) game).setPlayerReady();
+                    ((TicTacToeRedGameClient) game).resetBoard();
+                }
+            }
+
+
         });
         //displayNewGenericMessage(msg, true);
+    }
+    // todo add refresh highscore menuitem
+
+    @FXML
+    public void aboutMenuPressed() {
+        displayNewGenericMessage("This App is part of an assignment " +
+                "\nin Java workshop at the Open University of israel." +
+                "\nAuthor: Ladzaretti Gabriel", true);
+    }
+
+    @FXML
+    public void refreshMenuPressed() {
+        hsTableCtrl.updateHighScoreTable();
     }
 
     public void setUserLogged(boolean logged) {
@@ -373,5 +450,6 @@ public class MainController {
         signInMenuItem.setDisable(true);
         createUserMenuItem.setDisable(true);
         gameTypeMenu.setDisable(false);
+        refreshMenuItem.setDisable(false);
     }
 }

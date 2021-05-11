@@ -1,11 +1,12 @@
-package hibernate.entitiy;
+package hibernate.entity;
 
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "user_db")
-public class User {
+public class User implements Serializable {
 
     @Id
     @Column(name = "user_name")
@@ -22,6 +23,16 @@ public class User {
 
     @Column(name = "ttt_diff")
     private int tttDiff;
+
+    @Column(name = "ttt_red_losses")
+    private int tttLossesRed;
+
+    @Column(name = "ttt_red_wins")
+    private int tttWinsRed;
+
+    @Column(name = "ttt_red_diff")
+    private int tttDiffRed;
+
 
     @Column(name = "ch_losses")
     private int chLosses;
@@ -105,6 +116,30 @@ public class User {
 
     public void setChDiff(int chDiff) {
         this.chDiff = chDiff;
+    }
+
+    public int getTttLossesRed() {
+        return tttLossesRed;
+    }
+
+    public void setTttLossesRed(int tttLossesRed) {
+        this.tttLossesRed = tttLossesRed;
+    }
+
+    public int getTttWinsRed() {
+        return tttWinsRed;
+    }
+
+    public void setTttWinsRed(int tttWinsRed) {
+        this.tttWinsRed = tttWinsRed;
+    }
+
+    public int getTttDiffRed() {
+        return tttDiffRed;
+    }
+
+    public void setTttDiffRed(int tttDiffRed) {
+        this.tttDiffRed = tttDiffRed;
     }
 
     @Override

@@ -35,8 +35,6 @@ public class CreateUserController {
     @FXML
     public String createButtonPressed(Event e) {
         // retrieve user+pass
-        // todo verify if password is legal
-        // todo connect to sql
         String user = username.getText();
         String pass = password.getText();
         String confirmPass = confirm.getText();

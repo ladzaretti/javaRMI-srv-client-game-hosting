@@ -51,6 +51,7 @@
           <items>
                   <MenuItem fx:id="connectMenuItem" mnemonicParsing="false" onAction="#connectMenuPressed" text="Connect" />
             <MenuItem fx:id="startGameMenu" disable="true" mnemonicParsing="false" onAction="#startGameClicked" text="Start Game" />
+                  <MenuItem fx:id="refreshMenuItem" disable="true" mnemonicParsing="false" onAction="#refreshMenuPressed" text="Refresh HS Table" />
             <MenuItem fx:id="signInMenuItem" disable="true" mnemonicParsing="false" onAction="#signinMenuPressed" text="Sign In" />
                   <MenuItem fx:id="createUserMenuItem" disable="true" mnemonicParsing="false" onAction="#createUserMenuPressed" text="Create New User" />
             <Menu fx:id="gameTypeMenu" disable="true" mnemonicParsing="false" text="Choose Game Type">
@@ -60,6 +61,7 @@
                               <ToggleGroup fx:id="gameType" />
                            </toggleGroup>
                         </RadioMenuItem>
+                        <RadioMenuItem mnemonicParsing="false" text="Tic Tac Toe Red" toggleGroup="$gameType" />
                         <RadioMenuItem mnemonicParsing="false" text="Checkers" toggleGroup="$gameType" />
                      </items></Menu>
             <SeparatorMenuItem mnemonicParsing="false" />
@@ -68,12 +70,12 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
           <items>
-            <MenuItem mnemonicParsing="false" text="About" />
+            <MenuItem mnemonicParsing="false" onAction="#aboutMenuPressed" text="About" />
           </items>
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <AnchorPane fx:id="anchorPane" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <children>
         <Label alignment="CENTER" layoutY="39.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="300.0" style="&#10;" text="DEMO" textAlignment="CENTER" textFill="#9f9f9f" wrapText="false">
           <font>

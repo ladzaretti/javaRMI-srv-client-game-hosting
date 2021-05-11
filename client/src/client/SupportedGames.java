@@ -1,4 +1,4 @@
-package server.main;
+package client;
 
 import java.util.Arrays;
 

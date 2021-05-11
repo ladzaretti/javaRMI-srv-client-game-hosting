@@ -1,6 +1,6 @@
 package server.main;
 
-import hibernate.entitiy.User;
+import hibernate.entity.User;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.hibernate.Session;
@@ -43,7 +43,7 @@ public class MainServer extends Application implements RMIMainServer {
         return "connected to main srv";
     }
 
-    public void create(String user, String password) throws RemoteException {
+    public synchronized void create(String user, String password) throws RemoteException {
         // create a session
         Session session = factory.getCurrentSession();
 
@@ -61,7 +61,8 @@ public class MainServer extends Application implements RMIMainServer {
         session.getTransaction().commit();
     }
 
-    public User read(String id) {
+    @Override
+    public synchronized User read(String id) {
 
         // create a session
         Session session = factory.getCurrentSession();
@@ -76,7 +77,8 @@ public class MainServer extends Application implements RMIMainServer {
         return user;
     }
 
-    public void setQuery(String query) {
+    @Override
+    public synchronized void setQuery(String query) {
         // create a session
         Session session = factory.getCurrentSession();
         session.beginTransaction();
@@ -87,12 +89,13 @@ public class MainServer extends Application implements RMIMainServer {
 
     }
 
-    public List<User> getQuery(String query) {
+    @Override
+    public synchronized List<User> getQuery(String query, int maxResults) {
         // create a session
         Session session = factory.getCurrentSession();
         session.beginTransaction();
         // get query
-        List<User> list = session.createQuery(query).getResultList();
+        List<User> list = session.createQuery(query).setMaxResults(maxResults).getResultList();
         session.close();
         return list;
     }
@@ -135,16 +138,19 @@ public class MainServer extends Application implements RMIMainServer {
                     + ", tttDiff = " + diff
                     + "where userName ='" + username + "'";
             System.out.println("query: [" + query + "]");
-        } else if (type == SupportedGames.CHECKERS) {
+        } else if (type == SupportedGames.TICTAKTOERED) {
             updatedWins = user.getChWins() + wins;
             updatedLosses = user.getChLoses() + losses;
             diff = user.getChDiff() + wins - losses;
-            query = "UPDATE User set chWins = " + updatedWins
-                    + ", chLosses = " + updatedLosses
-                    + ", chDiff = " + diff
+            query = "UPDATE User set tttWinsRed = " + updatedWins
+                    + ", tttLossesRed = " + updatedLosses
+                    + ", tttDiffRed = " + diff
                     + "where userName ='" + username + "'";
             System.out.println("query: [" + query + "]");
+        } else if (type == SupportedGames.CHECKERS) {
+            //
         }
+
         setQuery(query);
     }
 
@@ -159,18 +165,25 @@ public class MainServer extends Application implements RMIMainServer {
             //create remote object
             BlockingMatchMaking<Remote> ticTacToe = new BlockingMatchMaking<>(2);
             BlockingMatchMaking<Remote> checkers = new BlockingMatchMaking<>(2);
+            BlockingMatchMaking<Remote> ticTacToeBlack = new BlockingMatchMaking<>(2);
 
             MainServer srv = new MainServer();
             GameServer tttSrv = new GameServer(ticTacToe,
                     port,
                     srv,
                     SupportedGames.TICTAKTOE);
+
             GameServer cSrv = new GameServer(checkers,
                     port,
                     srv,
                     SupportedGames.CHECKERS);
 
+            GameServer tttBSrv = new GameServer(ticTacToeBlack,
+                    port,
+                    srv,
+                    SupportedGames.TICTAKTOERED);
             System.setProperty("java.rmi.server.hostname", "localhost");
+            System.setProperty("rmiregistry", " -J-Djava.rmi.server.useCodebaseOnly=false");
             Registry reg = LocateRegistry.
                     createRegistry(port);
 
@@ -181,6 +194,10 @@ public class MainServer extends Application implements RMIMainServer {
 
             reg.bind("TicTacToeServer", tttStub);
 
+            //export tic tac toe Black matchmaking server
+            RMIGameServer tttBStub =
+                    (RMIGameServer) UnicastRemoteObject.exportObject(tttBSrv, port);
+            reg.bind("TicTacToeRedServer", tttBStub);
 
             //export checkers matchmaking server
             RMIGameServer cStub =

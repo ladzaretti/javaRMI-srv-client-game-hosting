@@ -33,8 +33,6 @@ public class LoginController {
     @FXML
     public void loginButtonPressed(Event e) {
         // retrieve user+pass
-        // todo verify if password is legal
-        // todo connect to sql
         String user = username.getText();
         String pass = password.getText();
 

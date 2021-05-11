@@ -36,5 +36,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="hibernate-release-5.4.31.Final" level="application" />
   </component>
 </module>

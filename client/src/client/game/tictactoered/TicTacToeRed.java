@@ -1,4 +1,4 @@
-package client.game.tictactoe;
+package client.game.tictactoered;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -24,7 +24,7 @@ import rmigamesession.RMIGameSession;
 import java.rmi.RemoteException;
 
 
-public class TicTacToe {
+public class TicTacToeRed {
     private final static int RECTSIZE = 100;
     private final static int BOARDSIZE = 300;
     private final Tile[][] board = new Tile[3][3];
@@ -39,7 +39,7 @@ public class TicTacToe {
     private Button sendButton;
     private Pane pane;
 
-    public TicTacToe(RMIGameSession srv, int id, String sign) {
+    public TicTacToeRed(RMIGameSession srv, int id, String sign) {
         this.srv = srv;
         this.playerID = id;
         this.sign = sign;
@@ -129,7 +129,7 @@ public class TicTacToe {
             this.y = y;
             Rectangle border = new Rectangle(RECTSIZE, RECTSIZE);
             border.setFill(null);
-            border.setStroke(Color.BLACK);
+            border.setStroke(Color.RED);
 
             text.setFont(Font.font(72));
             setAlignment(Pos.CENTER);
