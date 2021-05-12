@@ -4,6 +4,10 @@ package hibernate.entity;
 import javax.persistence.*;
 import java.io.Serializable;
 
+
+// the following class is used as a representation of the corresponding
+// SQL table data rows
+// userName is the primary key.
 @Entity
 @Table(name = "user_db")
 public class User implements Serializable {

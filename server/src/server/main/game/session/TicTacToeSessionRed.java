@@ -194,11 +194,11 @@ public class TicTacToeSessionRed implements RMIGameSession {
                     mainServer.updateSQLUser(player1UserName,
                             p1Won ? 1 : 0,
                             p2Won ? 1 : 0,
-                            SupportedGames.TICTAKTOE);
+                            SupportedGames.TICTAKTOERED);
                     mainServer.updateSQLUser(player2UserName,
                             p2Won ? 1 : 0,
                             p1Won ? 1 : 0,
-                            SupportedGames.TICTAKTOE);
+                            SupportedGames.TICTAKTOERED);
                     p1Won = p2Won = false;
                     updateSQLScore = false;
                 }
@@ -276,7 +276,7 @@ public class TicTacToeSessionRed implements RMIGameSession {
     }
 
     private class Combo {
-        Tile[] tiles;
+        final Tile[] tiles;
 
         public Combo(Tile... tiles) {
             this.tiles = tiles;
@@ -292,8 +292,8 @@ public class TicTacToeSessionRed implements RMIGameSession {
 
     private class Tile {
         int value;
-        int r;
-        int c;
+        final int r;
+        final int c;
 
         public Tile(int r, int c) {
             this.r = r;

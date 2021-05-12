@@ -9,7 +9,11 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+// this class implements the remove RMI interface which handles
+// the game logic in a tictactoe game instance.
 public class TicTacToeSession implements RMIGameSession {
+    // remote players participating in current game session
     private RMIGameClient player1;
     private RMIGameClient player2;
     private String player1UserName;
@@ -17,15 +21,23 @@ public class TicTacToeSession implements RMIGameSession {
     private int id1;
     private int id2;
     private int p1Score, p2Score;
+
+    // player turn flag
     private boolean turnP1 = true;
+
+    // end of game flags
     private boolean playable = true;
     private boolean p1Ready, p2Ready;
     private boolean p1Won = false;
     private boolean p2Won = false;
+
+    // board game data
     private final Tile[][] board;
     private final List<Combo> combos = new ArrayList<>();
     private int moveCount;
     private final int MAXMOVE = 9;
+
+    // stub of parent main server
     private MainServer mainServer;
     private boolean updateSQLScore = false;
     private final Object lock = new Object();
@@ -40,6 +52,8 @@ public class TicTacToeSession implements RMIGameSession {
         this.player2 = player2;
     }
 
+
+    // board initialization
     public TicTacToeSession() {
         board = new Tile[3][3];
         for (int c = 0; c < 3; c++)
@@ -86,7 +100,8 @@ public class TicTacToeSession implements RMIGameSession {
             e.printStackTrace();
         }
 
-
+        // connection testing daemon thread
+        // used to identify unexpected player disconnections
         ping = new Thread(() -> {
             while (!sessionEnded) {
                 try {
@@ -182,6 +197,8 @@ public class TicTacToeSession implements RMIGameSession {
             }
         }, 0, 5, TimeUnit.SECONDS);*/
 
+        // sql table update daemon thread.
+        // notified on gameover event by method reset()
         new Thread(() -> {
             while (true) {
                 synchronized (lock) {
@@ -207,6 +224,8 @@ public class TicTacToeSession implements RMIGameSession {
         }).start();
     }
 
+
+    // remote method for registering new move by remote client
     @Override
     public synchronized boolean move(int c, int r, int id) throws RemoteException {
         boolean valid = false;
@@ -230,6 +249,7 @@ public class TicTacToeSession implements RMIGameSession {
             board[r][c].setValue(2);
             turnP1 = true;
         }
+        // check if current move is a winning move
         if (checkState()) {
             int winningID;
             if (id == id1) {
@@ -241,6 +261,7 @@ public class TicTacToeSession implements RMIGameSession {
             }
             gameOver(winningID);
         }
+        // in case of a draw
         if (playable && moveCount == MAXMOVE) {
             gameOver(-1);
 
@@ -248,6 +269,9 @@ public class TicTacToeSession implements RMIGameSession {
         return valid;
     }
 
+
+    // remote method used by main server to set and send game info
+    // to the participating players
     @Override
     public void sendConnectionInfo(String msg) {
         try {
@@ -258,6 +282,7 @@ public class TicTacToeSession implements RMIGameSession {
         }
     }
 
+    // checks for a winning combo
     private boolean checkState() {
         for (Combo combo : combos) {
             if (combo.isComplete()) {
@@ -276,7 +301,7 @@ public class TicTacToeSession implements RMIGameSession {
     }
 
     private class Combo {
-        Tile[] tiles;
+        final Tile[] tiles;
 
         public Combo(Tile... tiles) {
             this.tiles = tiles;
@@ -290,10 +315,12 @@ public class TicTacToeSession implements RMIGameSession {
         }
     }
 
+
+    // tile data class
     private class Tile {
         int value;
-        int r;
-        int c;
+        final int r;
+        final int c;
 
         public Tile(int r, int c) {
             this.r = r;
@@ -313,6 +340,7 @@ public class TicTacToeSession implements RMIGameSession {
         }
     }
 
+    // used by client to update in case of disconnection
     @Override
     public void sessionEnded(int id) throws RemoteException {
         if (id1 == id)
@@ -331,7 +359,7 @@ public class TicTacToeSession implements RMIGameSession {
         reset();
     }
 
-
+    // reset game
     public void reset() {
         for (int c = 0; c < 3; c++)
             for (int r = 0; r < 3; r++) {
@@ -348,6 +376,7 @@ public class TicTacToeSession implements RMIGameSession {
         }
     }
 
+    // remote method used by client to update server
     @Override
     public void setPlayerReady(int id) throws RemoteException {
         if (id == id1)
@@ -358,6 +387,9 @@ public class TicTacToeSession implements RMIGameSession {
             playable = true;
     }
 
+
+    // used by session to update the other player regurding
+    // new message.
     @Override
     public void sendChatMessage(int id, String msg) {
         if (id == id1) {
@@ -375,6 +407,8 @@ public class TicTacToeSession implements RMIGameSession {
 
     }
 
+
+    // remote method for connection testing
     @Override
     public void ping() throws RemoteException {
     }

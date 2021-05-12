@@ -79,7 +79,7 @@ public class HSTableCtrl extends TableView<HighScoreData> implements Initializab
         }
         try {
             list = srv.getQuery(
-                    "from User u order by u.chDiff desc",
+                    "from User u order by u.tttDiffRed desc",
                     5);
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -87,12 +87,12 @@ public class HSTableCtrl extends TableView<HighScoreData> implements Initializab
         assert list != null;
         for (Object u : list) {
             String userName = ((User) u).getUserName();
-            int wins = ((User) u).getChWins();
-            int losses = ((User) u).getTttLoses();
-            int diff = ((User) u).getChDiff();
+            int wins = ((User) u).getTttWinsRed();
+            int losses = ((User) u).getTttLossesRed();
+            int diff = ((User) u).getTttDiffRed();
             highScoreDataList.add(
                     new HighScoreData(
-                            userName + "(C)",
+                            userName + "(R)",
                             wins,
                             losses,
                             diff));

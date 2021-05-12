@@ -1,27 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="a673c7e9-7239-43a7-913f-e649345d46a6" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/../../../client/src/client/SupportedGames.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../../../client/src/client/mainui/highscoretableview/HighScoreData.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../client/client.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../client/client.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../client/out/production/client/client/mainui/main_window.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../client/out/production/client/client/mainui/main_window.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../client/src/client/game/tictactoe/TicTacToe.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../client/src/client/game/tictactoe/TicTacToe.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../client/src/client/mainui/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../client/src/client/mainui/MainController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../client/src/client/mainui/MainUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../client/src/client/mainui/MainUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../client/src/client/mainui/createuser/CreateUserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../client/src/client/mainui/createuser/CreateUserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../client/src/client/mainui/login/LoginController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../client/src/client/mainui/login/LoginController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../client/src/client/mainui/main_window.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/../../../client/src/client/mainui/main_window.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../client/src/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../client/src/module-info.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../rmigamesession/src/rmigamesession.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../../../rmigamesession/src/rmigamesession.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../rmimainserver/src/rmimainserver.jar" beforeDir="false" afterPath="$PROJECT_DIR$/../../../rmimainserver/src/rmimainserver.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../../rmimainserver/src/rmimainserver/RMIMainServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../../../rmimainserver/src/rmimainserver/RMIMainServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../02-game-tracker.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../../02-game-tracker.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entitiy/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/main/MainServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/main/MainServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/main/SupportedGames.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/main/SupportedGames.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../server/main/game/GameServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/../server/main/game/GameServer.java" afterDir="false" />
-    </list>
+    <list default="true" id="a673c7e9-7239-43a7-913f-e649345d46a6" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

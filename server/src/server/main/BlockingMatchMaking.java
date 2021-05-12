@@ -3,6 +3,10 @@ package server.main;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 
+
+// blocking thread safe data structure.
+// the clients are the producers.
+// the matchmaking service is the consumer.
 public class BlockingMatchMaking<T> {
     private boolean empty = true;
     private boolean full = false;
@@ -32,7 +36,7 @@ public class BlockingMatchMaking<T> {
         return item;
     }
 
-    public synchronized boolean remove(T obj) {
+    public synchronized void remove(T obj) {
         //wait until ticket is available
         boolean itemRemoved = queue.remove(obj);
         if (full)
@@ -41,7 +45,6 @@ public class BlockingMatchMaking<T> {
             empty = true;
         if (itemRemoved)
             notifyAll();
-        return itemRemoved;
     }
 
     public synchronized ArrayList<T> clear() {
@@ -64,7 +67,7 @@ public class BlockingMatchMaking<T> {
     }
 
     public synchronized void fill(T newTicket) {
-        //wait untill both tickets have been retrieved
+        //wait until both tickets have been retrieved
         while (!empty) {
             try {
                 wait();
@@ -81,7 +84,7 @@ public class BlockingMatchMaking<T> {
     }
 
     public synchronized void put(T newTicket) {
-        //wait untill both tickets have been retrieved
+        //wait until both tickets have been retrieved
         while (full) {
             try {
                 wait();

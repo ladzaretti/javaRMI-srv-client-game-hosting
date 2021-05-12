@@ -17,11 +17,13 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 
 
+// this remote class handles matchmaking using the
+// given blocking queue
 public class GameServer implements RMIGameServer {
 
-    BlockingMatchMaking<Remote> queue;
-    int port;
-    MainServer main;
+    final BlockingMatchMaking<Remote> queue;
+    final int port;
+    final MainServer main;
 
     public GameServer(BlockingMatchMaking<Remote> queue,
                       int port,
@@ -30,14 +32,18 @@ public class GameServer implements RMIGameServer {
         this.queue = queue;
         this.port = port;
         this.main = main;
+        // consumer thread, blocks until there are two waiting players
+        // in the data structure.
         new Thread(() -> {
             ArrayList<Remote> players;
             while (true) {
                 String gameSessionInfo;
+                // pull waiting players
                 players = queue.clear();
                 RMIGameClient p1 = (RMIGameClient) players.get(0);
                 RMIGameClient p2 = (RMIGameClient) players.get(1);
                 RMIGameSession gameSession = null;
+                // start new game session
                 if (type == SupportedGames.TICTAKTOE)
                     gameSession = new TicTacToeSession(p1, p2, main);
                 else if (type == SupportedGames.TICTAKTOERED)
@@ -46,14 +52,18 @@ public class GameServer implements RMIGameServer {
                     // todo create checkers session
                 }
                 try {
+                    // export game session
                     RMIGameSession gameSessionStub =
                             (RMIGameSession) UnicastRemoteObject.exportObject(
                                     gameSession,
                                     port);
                     Registry reg = LocateRegistry.getRegistry(port);
+                    // bind session with its hashcode
                     reg.bind(gameSessionInfo =
                             String.valueOf(gameSessionStub.hashCode()), gameSessionStub);
                     assert gameSession != null;
+                    // use game session to update players with the corresponding
+                    // connection info.
                     gameSession.sendConnectionInfo(gameSessionInfo);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -62,6 +72,7 @@ public class GameServer implements RMIGameServer {
         }).start();
     }
 
+    // used by client to connect to the matchmaking service.
     @Override
     public synchronized String connect(Remote client) throws RemoteException {
 
