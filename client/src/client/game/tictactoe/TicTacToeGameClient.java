@@ -41,6 +41,7 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
                 e.printStackTrace();
             }
         }
+        // wait for game session connection to be made
         while (!connected) {
             try {
                 synchronized (lock) {
@@ -57,7 +58,7 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
 
     @Override
     public String setConnectionInfo(String srv, int id, String sign) throws RemoteException {
-        // server uses this method to update the client on successful gamematch
+        // game session uses this method to update the client on successful gamematch
         synchronized (lock) {
             started = true;
             lock.notifyAll();
@@ -93,6 +94,7 @@ public class TicTacToeGameClient implements Runnable, rmigameclient.RMIGameClien
         } catch (NotBoundException e) {
             e.printStackTrace();
         }
+        // wake game runnable thread
         synchronized (lock) {
             connected = true;
             lock.notifyAll();

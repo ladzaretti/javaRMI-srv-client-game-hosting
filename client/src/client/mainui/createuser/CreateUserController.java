@@ -13,6 +13,7 @@ import rmimainserver.RMIMainServer;
 
 import java.rmi.RemoteException;
 
+// create user window controller
 public class CreateUserController {
     @FXML
     TextField username;

@@ -1,6 +1,5 @@
 package client.mainui.highscoretableview;
 
-import client.mainui.MainController;
 import hibernate.entity.User;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,6 +15,8 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.ResourceBundle;
 
+
+// tableview extention for high score display on main window.
 public class HSTableCtrl extends TableView<HighScoreData> implements Initializable {
     @FXML
     private TableView<HighScoreData> tableView;
@@ -30,33 +31,28 @@ public class HSTableCtrl extends TableView<HighScoreData> implements Initializab
     private RMIMainServer srv;
 
     @Override
+    // init columns with property factories.
     public void initialize(URL url, ResourceBundle resourceBundle) {
         usernameColumn.setCellValueFactory(new PropertyValueFactory<HighScoreData, String>("user"));
         diffColumn.setCellValueFactory(new PropertyValueFactory<HighScoreData, Integer>("diff"));
         winsColumn.setCellValueFactory(new PropertyValueFactory<HighScoreData, Integer>("wins"));
         lossesColumn.setCellValueFactory(new PropertyValueFactory<HighScoreData, Integer>("losses"));
-
         tableView.setEditable(false);
     }
 
-    /*private ObservableList<HighScoreData> getData() {
-        ObservableList<HighScoreData> scores = FXCollections.observableArrayList();
-
-        scores.add(new HighScoreData("asdasd", 10, 5, 1));
-        scores.add(new HighScoreData("asdaxcvbcxsd", 10, 5, 3));
-        scores.add(new HighScoreData("cvb", 100, 5, 2));
-        scores.add(new HighScoreData("cvb", 55, 13, 66));
-        return scores;
-    }*/
-
+    // main server setter
     public void setSrv(RMIMainServer srv) {
         this.srv = srv;
     }
 
+
+    // update table with db data.
     public void updateHighScoreTable() {
-        //mainController.getHighScoreFromSQL();
         List list = null;
-        ObservableList<HighScoreData> highScoreDataList = FXCollections.observableArrayList();
+        ObservableList<HighScoreData> highScoreDataList
+                = FXCollections.observableArrayList();
+
+        // query and extract ttt data
         try {
             list = srv.getQuery(
                     "from User u order by u.tttDiff desc",
@@ -77,6 +73,8 @@ public class HSTableCtrl extends TableView<HighScoreData> implements Initializab
                             losses,
                             diff));
         }
+
+        // query and extract ttt red data
         try {
             list = srv.getQuery(
                     "from User u order by u.tttDiffRed desc",
@@ -97,7 +95,9 @@ public class HSTableCtrl extends TableView<HighScoreData> implements Initializab
                             losses,
                             diff));
         }
+        // update tableview with extracted data
         tableView.setItems(highScoreDataList);
+        // sort by diff column
         diffColumn.setSortType(TableColumn.SortType.DESCENDING);
         tableView.getSortOrder().setAll(diffColumn);
     }

@@ -31,6 +31,9 @@ import rmigameclient.RMIGameClient;
 import rmigameserver.RMIGameServer;
 import rmimainserver.RMIMainServer;
 
+
+// this is the main UI window controller
+// controls all communication with the main server
 public class MainController {
     @FXML
     private MenuItem connectMenuItem;
@@ -70,6 +73,7 @@ public class MainController {
     private HSTableCtrl hsTableCtrl;
     private SupportedGames gameTypeEnum;
 
+    // set on close handler for the main window
     public void initialize() {
         vbox.sceneProperty().addListener((observableScene,
                                           oldScene,
@@ -81,11 +85,11 @@ public class MainController {
                                                        oldWindow,
                                                        newWindow) -> {
                     if (oldWindow == null && newWindow != null) {
-                        // stage is set. now is the right time to do
-                        // whatever we need to the stage in the controller.
+                        // stage is set.
                         // set on close request for the main window
                         newWindow.setOnCloseRequest(windowEvent -> {
                             try {
+                                // send disconnect request for remote servers
                                 if (connectedToMain)
                                     mainServerStub.disconnect();
                                 if (connectedToGame)
@@ -99,6 +103,7 @@ public class MainController {
                 });
             }
         });
+        // load high score table
         FXMLLoader fxmlLoader = new FXMLLoader(
                 getClass().getResource("highscoretableview/highscore_tableview.fxml"));
         try {
@@ -112,11 +117,13 @@ public class MainController {
 
     RMIGameClient game = null;
 
+    // used by game client class to update user name after successful login
     public String getUsername() {
         return username;
     }
 
     @FXML
+    // connect menu press handler
     public void connectMenuPressed() {
         try {
             // connect to the main server
@@ -139,6 +146,8 @@ public class MainController {
             signInMenuItem.setDisable(false);
             refreshMenuItem.setDisable(false);
 
+            // start pinging thread in order to catch unexpected
+            // server failure
             Thread ping = new Thread(() -> {
                 while (true) {
                     try {
@@ -168,7 +177,6 @@ public class MainController {
             ping.start();
 
             // todo fix app is hanging after closing
-            // todo show high score when connected to main server!
         } catch (RemoteException e) {
             e.printStackTrace();
             // display connection error msg
@@ -181,14 +189,8 @@ public class MainController {
         }
     }
 
-    public void getHighScoreFromSQL() {
-        try {
-            mainServerStub.signIn("asdasd", "asddddddddddddddd");
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
+    // method used by non UI threads in order to display
+    // connection error messages; mainly by game client extending classes
     public void serverIsDown(String msg) {
         Platform.runLater(() -> {
                     AlertBox alertErr = new AlertBox(Alert.AlertType.INFORMATION,
@@ -208,6 +210,7 @@ public class MainController {
     }
 
     @FXML
+    // start game menu press handler
     public void startGameClicked() {
         // retrieve selected game type
         // and connect to the corresponding remote matchmaking server
@@ -215,6 +218,8 @@ public class MainController {
         String gameSelected = gameSelectedButton.getText();
         String gameServer;
         try {
+            // get game type chosen and set corresponding alias for connection
+            // to the corresponding remote object
             gameServer = gameSelected.replaceAll("\\s", "") + "Server";
             gameServerStub = (RMIGameServer) reg.lookup(gameServer);
             // export the object of the game thread for the server usage
@@ -229,6 +234,7 @@ public class MainController {
                 gameTypeEnum = SupportedGames.CHECKERS;
             }
 
+            // export game client.
             gameClientStub = (RMIGameClient) UnicastRemoteObject.exportObject(
                     game, 0);
             connectedToGame = true;
@@ -272,7 +278,10 @@ public class MainController {
                 String srvAns = null;
                 String[] supprtedGames;
                 try {
+                    // send remote object ref to the game server
+                    // thread blocked until game match
                     srvAns = gameServerStub.connect(gameClientStub);
+                    // woke
                     supprtedGames = gameServerStub.getSupportedGames();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -307,6 +316,7 @@ public class MainController {
 
 
     @FXML
+    // sign in menu pressed
     public void signinMenuPressed(ActionEvent event) {
         try {
             //load login screen
@@ -357,6 +367,9 @@ public class MainController {
         }
     }
 
+    // method used by main controller to start a given game.
+    // ie display UI for the game session, as the game client thread is not
+    // the UI owner thread.
     public void startGame(Parent root) {
         Platform.runLater(() -> {
                     gameStage = new Stage();
@@ -393,6 +406,8 @@ public class MainController {
         );
     }
 
+
+    // used by game client op pinging thread to display msges
     public void opponentDisconnectedAlert() {
         Platform.runLater(() -> {
                     AlertBox opponnetDisDialog =
@@ -406,6 +421,8 @@ public class MainController {
         //displayNewGenericMessage("opponent disconnected", true);
     }
 
+
+    // used by game client to display game over/winning messages
     public void playerWonAlert(String msg) {
         Platform.runLater(() -> {
             AlertBox gameOverDialog =
@@ -430,7 +447,6 @@ public class MainController {
         });
         //displayNewGenericMessage(msg, true);
     }
-    // todo add refresh highscore menuitem
 
     @FXML
     public void aboutMenuPressed() {
@@ -440,6 +456,7 @@ public class MainController {
     }
 
     @FXML
+    // refresh hs table from menu
     public void refreshMenuPressed() {
         hsTableCtrl.updateHighScoreTable();
     }

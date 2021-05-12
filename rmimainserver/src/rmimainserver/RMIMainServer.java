@@ -5,6 +5,8 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 
+// main server interface.
+// controls all sql db comunication.
 public interface RMIMainServer<T> extends Remote {
     String connect() throws RemoteException;
 

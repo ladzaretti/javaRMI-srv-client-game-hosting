@@ -2,6 +2,9 @@ package client.mainui.highscoretableview;
 
 import javafx.beans.property.SimpleStringProperty;
 
+
+// class to be used as data entry for the highscore table (tableview)
+// on main ui window.
 public class HighScoreData {
     private SimpleStringProperty user;
     private int wins, losses, diff;
