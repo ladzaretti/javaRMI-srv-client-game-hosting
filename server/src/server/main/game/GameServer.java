@@ -3,9 +3,9 @@ package server.main.game;
 import rmigameserver.RMIGameServer;
 import rmigameclient.RMIGameClient;
 import rmigamesession.RMIGameSession;
-import server.main.SupportedGames;
 import server.main.BlockingMatchMaking;
 import server.main.MainServer;
+import server.main.SupportedGames;
 import server.main.game.session.TicTacToeSession;
 import server.main.game.session.TicTacToeSessionRed;
 

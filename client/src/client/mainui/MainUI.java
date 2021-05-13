@@ -11,7 +11,7 @@ public class MainUI extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("main_window.fxml"));
-        primaryStage.setTitle("Game Server");
+        primaryStage.setTitle("Game Client");
         primaryStage.setScene(new Scene(root));
         primaryStage.setResizable(false);
         primaryStage.show();

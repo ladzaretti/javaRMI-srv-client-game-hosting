@@ -330,6 +330,8 @@ public class MainController {
                 loginController.setSrv(mainServerStub);
                 Stage stage = new Stage();
                 stage.setScene(new Scene(root));
+                stage.setTitle("Login");
+                stage.setResizable(false);
                 stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -357,7 +359,9 @@ public class MainController {
                 createUserController.setMain(this);
                 createUserController.setSrv(mainServerStub);
                 Stage stage = new Stage();
+                stage.setTitle("Create New User");
                 stage.setScene(new Scene(root));
+                stage.setResizable(false);
                 stage.show();
             } catch (IOException e) {
                 e.printStackTrace();
