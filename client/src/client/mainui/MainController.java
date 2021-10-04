@@ -306,10 +306,23 @@ public class MainController {
 
     public void exitMenuPressed() {
         try {
-            if (connectedToMain)
+            if (connectedToMain && gameServerStub != null)
                 gameServerStub.disconnect(gameClientStub);
         } catch (RemoteException e) {
             e.printStackTrace();
+        }
+        if (game != null) {
+            switch (gameTypeEnum) {
+                case CHECKERS -> {
+                    // todo add later
+                }
+                case TICTAKTOE -> {
+                    ((TicTacToeGameClient) game).disconnect();
+                }
+                case TICTAKTOERED -> {
+                    ((TicTacToeRedGameClient) game).disconnect();
+                }
+            }
         }
         Platform.exit();
     }

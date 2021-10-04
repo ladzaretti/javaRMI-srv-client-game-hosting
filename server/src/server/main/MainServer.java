@@ -36,7 +36,10 @@ public class MainServer extends Application implements RMIMainServer {
     @Override
     public void start(Stage stage) {
         stage.setTitle("Main Server");
-        stage.setOnCloseRequest(e -> factory.close());
+        stage.setOnCloseRequest(e -> {
+            factory.close();
+            System.exit(0);
+        });
         stage.setResizable(false);
         stage.setHeight(0);
         stage.setWidth(300);

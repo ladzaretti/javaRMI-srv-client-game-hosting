@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="271.0" prefWidth="298.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.mainui.highscoretableview.HSTableCtrl">
+   <children>
+      <TableView fx:id="tableView" layoutY="29.0" prefHeight="243.0" prefWidth="298.0">
+        <columns>
+          <TableColumn fx:id="usernameColumn" editable="false" prefWidth="75.0" text="User Name" />
+          <TableColumn fx:id="diffColumn" prefWidth="75.0" text="DIff" />
+            <TableColumn fx:id="winsColumn" prefWidth="75.0" text="Wins" />
+            <TableColumn fx:id="lossesColumn" prefWidth="75.0" text="Losses" />
+        </columns>
+      </TableView>
+      <Label layoutX="14.0" layoutY="-1.0" text="High Score Table" underline="true">
+         <font>
+            <Font name="System Bold" size="20.0" />
+         </font>
+      </Label>
+   </children>
+</AnchorPane>

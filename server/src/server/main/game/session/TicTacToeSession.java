@@ -388,7 +388,7 @@ public class TicTacToeSession implements RMIGameSession {
     }
 
 
-    // used by session to update the other player regurding
+    // used by session to update the other player regarding
     // new message.
     @Override
     public void sendChatMessage(int id, String msg) {
